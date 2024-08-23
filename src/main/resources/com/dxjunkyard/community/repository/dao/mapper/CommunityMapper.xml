@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dxjunkyard.community.repository.dao.mapper.CommunityMapper">
+    <insert id="addEvent">
+        insert into events(title,owner_id,time_from,time_to,comment,place_id,event_type)
+        values(#{title},#{ownerId},#{timeFrom},#{timeTo},#{comment},#{placeId},#{eventType})
+    </insert>
+    <insert id="addIncludeSportEvent">
+        insert into IncludeSportEvents(event_id,sport_event_id)
+        values((select max(ev.event_id) from Events ev),#{sportEventId})
+    </insert>
+    <insert id="addIncludeSportEvent_old">
+        insert into IncludeSportEvents(event_id,sport_event_id)
+        values((select auto_increment from information_schema.tables where table_schema = (select database()) and table_name = 'Events'),#{sportEventId})
+    </insert>
+    <select id="getEvent" resultType="com.dxjunkyard.community.domain.Event">
+        select
+               event_id as eventId
+             , title
+             , owner_id as ownerId
+             , time_from as timeFrom
+             , time_to as timeTo
+             , place_id as placeId
+             , event_type as eventType
+        from Events
+        where event_id = #{eventId}
+    </select>
+    <select id="getIncludedSportEvents" resultType="com.dxjunkyard.community.domain.SportEvent">
+        select
+               se.sport_event_id as sportEventId
+             , se.name as name
+             , se.comment as comment
+        from SportEvents as se
+        left join IncludeSportEvents as ise
+            on se.sport_event_id = ise.sport_event_id
+        where ise.event_id = #{event_id}
+    </select>
+</mapper>
