@@ -60,21 +60,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getUserProfile(@RequestHeader("Authorization") String authHeader) {
-        /*
-        // Authorizationヘッダーの形式が正しいか確認
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body(null);  // Unauthorized
-        }
-
-        // トークンを取得
-        String token = authHeader.substring(7);  // "Bearer "の部分を除く
-
-        // トークンの正当性をMock関数で検証（実際にはサービス層でJWTの検証を行う）
-        String userId = validateTokenAndGetUserId(token);
-        if (userId == null) {
-            return ResponseEntity.status(401).body(null);  // Unauthorized
-        }
-         */
+        logger.info("profile API");
 
         String userId = authService.checkAuthHeader(authHeader);
 
