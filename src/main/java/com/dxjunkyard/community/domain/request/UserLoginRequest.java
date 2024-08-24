@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
-public class UserRegisterRequest {
+public class UserLoginRequest {
     @NotBlank(message = "Title cannot be empty")
     private String userId;
 
