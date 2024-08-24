@@ -1,6 +1,7 @@
 package com.dxjunkyard.community.controller;
 
 import com.dxjunkyard.community.domain.request.AssignRoleRequest;
+import com.dxjunkyard.community.domain.request.UserLoginRequest;
 import com.dxjunkyard.community.domain.request.UserRegisterRequest;
 import com.dxjunkyard.community.domain.response.AdminResponse;
 import com.dxjunkyard.community.domain.response.InviteMemberRequest;
@@ -46,7 +47,7 @@ public class UserController {
     // 権限の確認
     @GetMapping("/login")
     public ResponseEntity<String> getRole(
-            @PathVariable("user_id") Long userId) {
+            @RequestBody UserLoginRequest request) {
         logger.info("login API");
         // 権限の確認ロジック
         try {
