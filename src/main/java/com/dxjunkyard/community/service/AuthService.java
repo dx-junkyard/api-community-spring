@@ -13,14 +13,17 @@ public class AuthService {
     private Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     public String checkAuthHeader(String authHeader) {
+        logger.info("start : check header");
         // Authorizationヘッダーの形式が正しいか確認
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return null;  // Unauthorized
         }
 
+        logger.info("get token");
         // トークンを取得
         String token = authHeader.substring(7);  // "Bearer "の部分を除く
 
+        logger.info("check token");
         // トークンの正当性をMock関数で検証（実際にはサービス層でJWTの検証を行う）
         String userId = validateTokenAndGetUserId(token);
         if (userId == null) {
