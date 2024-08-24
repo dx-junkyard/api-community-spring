@@ -18,8 +18,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/api/communities")
 @Slf4j
-public class Controller {
-    private Logger logger = LoggerFactory.getLogger(Controller.class);
+public class CommunityController {
+    private Logger logger = LoggerFactory.getLogger(CommunityController.class);
 
     @Autowired
     private CommunityService communityService;
