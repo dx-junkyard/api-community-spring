@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Community {
+public class CommunitySummary {
     private Long id;
     private String ownerId;
     private String name;
