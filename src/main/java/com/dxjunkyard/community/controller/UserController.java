@@ -51,7 +51,7 @@ public class UserController {
         logger.info("login API");
         // 権限の確認ロジック
         try {
-            String token = "XXXXXX_token";
+            String token = "valid-token";
             return ResponseEntity.ok(token);
         } catch (Exception e) {
             logger.debug("login error : " + e.getMessage());
@@ -60,10 +60,14 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<UserProfileResponse> getUserProfile(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<UserProfileResponse> getUserProfile(
+            @RequestHeader("Authorization") String authHeader) {
         logger.info("profile API");
 
         String userId = authService.checkAuthHeader(authHeader);
+        if (userId == null) {
+            return ResponseEntity.status(404).body(null);  // Not Found
+        }
 
         // ユーザーIDに基づいてプロフィールを取得（Mockのデータ使用）
         UserProfileResponse profile = getUserProfileById(userId);
@@ -73,16 +77,7 @@ public class UserController {
 
         return ResponseEntity.ok(profile);  // 成功時にプロフィールを返す
     }
-/*
-    // Mock関数: トークンを検証し、ユーザーIDを返す（実際にはJWTの解析と検証を行う）
-    private String validateTokenAndGetUserId(String token) {
-        // JWTの検証を行い、正しい場合はユーザーIDを返す
-        if (token.equals("valid-token")) {
-            return "12345";  // 正常なユーザーIDを返す
-        }
-        return null;  // トークンが無効な場合はnullを返す
-    }
-*/
+
     // Mock関数: ユーザーIDに基づいてユーザープロフィールを返す
     private UserProfileResponse getUserProfileById(String userId) {
         if (userId.equals("12345")) {
