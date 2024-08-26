@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommunityMember {
+public class CommunityMembers {
     private Long userId;
     private String userName;
     private String userRole;

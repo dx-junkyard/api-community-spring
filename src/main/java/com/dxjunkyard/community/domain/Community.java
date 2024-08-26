@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Community {
-    private Long id;
+    private Long communityId;
     private String ownerId;
     private String name;
     private String profile;
