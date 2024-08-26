@@ -81,7 +81,7 @@ public class UserController {
     // Mock関数: ユーザーIDに基づいてユーザープロフィールを返す
     private UserProfileResponse getUserProfileById(String userId) {
         if (userId.equals("12345")) {
-            return new UserProfileResponse("12345", "John Doe", "john@example.com");
+            return new UserProfileResponse("12345", "John Doe", "john@example.com","profile");
         }
         return null;
     }
