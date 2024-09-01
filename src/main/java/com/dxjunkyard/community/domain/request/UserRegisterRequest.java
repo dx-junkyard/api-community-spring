@@ -9,9 +9,12 @@ import java.util.List;
 
 @Data
 public class UserRegisterRequest {
-    @NotBlank(message = "Title cannot be empty")
-    private String userId;
+    @NotBlank(message = "name cannot be empty")
+    private String name;
 
-    @NotBlank(message = "Title cannot be empty")
+    @NotBlank(message = "email cannot be empty")
+    private String email;
+
+    @NotBlank(message = "password cannot be empty")
     private String password;
 }

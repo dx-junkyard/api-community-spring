@@ -3,8 +3,106 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dxjunkyard.community.repository.dao.mapper.CommunityMapper">
-    <insert id="addCommunity">
-        insert into events(title,owner_id,time_from,time_to,comment,place_id,event_type)
-        values(#{title},#{ownerId},#{timeFrom},#{timeTo},#{comment},#{placeId},#{eventType})
+    <insert id="addCommunity" useGeneratedKeys="true" keyProperty="id">
+        insert into Communities(
+                                owner_id,
+                                place_id,
+                                name,
+                                thumbnail_image_url,
+                                thumbnail_message,
+                                thumbnail_pr,
+                                description,
+                                profile_image_url,
+                                member_count,
+                                visibility,
+                                status)
+        values (
+                   #{ownerId},
+                   #{placeId},
+                   #{name},
+                   #{thumbnailImageUrl},
+                   #{thumbnailMessage},
+                   #{thumbnailPr},
+                   #{description},
+                   #{profileImageUrl},
+                   1,
+                   #{visibility},
+                   1
+            )
     </insert>
+    <insert id="addCommunityMember">
+        insert into CommunityMembers(
+            community_id,
+            user_id,
+            role_id,
+            status,
+            fav_flg)
+        values (
+                   #{community_id},
+                   #{user_id},
+                   #{role_id},
+                   #{status},
+                   #{fav}
+               )
+    </insert>
+    <select id="getCommunityList" resultType="com.dxjunkyard.community.domain.CommunitySummary">
+        select
+            id,
+            name,
+            thumbnail_image_url as thumbnailImageUrl ,
+            thumbnail_message as thumbnailMessage,
+            thumbnail_pr as thumbnailPr
+        from
+            Communities
+    </select>
+    <select id="searchCommunityName" resultType="com.dxjunkyard.community.domain.CommunitySummary">
+        select
+            id,
+            name,
+            thumbnail_image_url as thumbnailImageUrl ,
+            thumbnail_message as thumbnailMessage,
+            thumbnail_pr as thumbnailPr
+        from
+            Communities
+        where
+            name LIKE CONCAT('%',#{keyword},'%')
+    </select>
+    <select id="searchCommunityDescription" resultType="com.dxjunkyard.community.domain.CommunitySummary">
+        select
+            id,
+            name,
+            thumbnail_image_url as thumbnailImageUrl ,
+            thumbnail_message as thumbnailMessage,
+            thumbnail_pr as thumbnailPr
+        from
+            Communities
+        where
+            thumbnail_message LIKE CONCAT('%',#{keyword},'%') or description LIKE CONCAT('%',#{keyword},'%')
+    </select>
+    <select id="searchCommunityPR" resultType="com.dxjunkyard.community.domain.CommunitySummary">
+        select
+            id,
+            name,
+            thumbnail_image_url as thumbnailImageUrl ,
+            thumbnail_message as thumbnailMessage,
+            thumbnail_pr as thumbnailPr
+        from
+            Communities
+        where
+            thumbnail_pr LIKE CONCAT('%',#{keyword},'%')
+    </select>
+    <select id="getMyCommunityList" resultType="com.dxjunkyard.community.domain.CommunitySummary">
+        select
+            c.id as id,
+            c.name as name,
+            c.thumbnail_image_url as thumbnailImageUrl ,
+            c.thumbnail_message as thumbnailMessage,
+            c.thumbnail_pr as thumbnailPr
+        from
+            Communities AS c
+        JOIN
+            CommunityMembers AS cm ON c.id = cm.community_id
+        where
+            cm.user_id = #{my_id}
+    </select>
 </mapper>
