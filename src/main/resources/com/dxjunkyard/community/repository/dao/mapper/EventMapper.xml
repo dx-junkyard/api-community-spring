@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dxjunkyard.community.repository.dao.mapper.EventMapper">
+    <insert id="addEvent" useGeneratedKeys="true" keyProperty="eventId">
+        insert into events(title,community_id,owner_id,event_start,event_end,application_start,application_end,comment,place_id,visibility)
+        values(#{title},#{communityId},#{ownerId},#{eventStart},#{eventEnd},#{applicationStart},#{applicationEnd},#{comment},#{placeId},#{visibility})
+    </insert>
+    <select id="getEventList" resultType="com.dxjunkyard.community.domain.EventSummary">
+        select
+            event_id as eventId
+             , title
+             , owner_id as id
+             , event_start as eventStart
+             , event_end as eventEdn
+             , application_start as applicationStart
+             , application_end as applicationEdn
+             , place_id as placeId
+             , visibility as visibility
+        from Events
+    </select>
+    <select id="getEvent" resultType="com.dxjunkyard.community.domain.Event">
+        select
+            event_id as eventId
+             , title
+             , owner_id as ownerId
+             , event_start as timeFrom
+             , event_end as timeTo
+             , application_start as applicationStart
+             , application_end as applicationEdn
+             , place_id as placeId
+             , visibility as visibility
+        from Events
+        where event_id = #{eventId}
+    </select>
+</mapper>

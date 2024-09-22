@@ -55,7 +55,7 @@
         from
             Communities
     </select>
-    <select id="searchCommunityName" resultType="com.dxjunkyard.community.domain.CommunitySummary">
+    <select id="searchCommunity" resultType="com.dxjunkyard.community.domain.CommunitySummary">
         select
             id,
             name,
@@ -65,31 +65,7 @@
         from
             Communities
         where
-            name LIKE CONCAT('%',#{keyword},'%')
-    </select>
-    <select id="searchCommunityDescription" resultType="com.dxjunkyard.community.domain.CommunitySummary">
-        select
-            id,
-            name,
-            thumbnail_image_url as thumbnailImageUrl ,
-            thumbnail_message as thumbnailMessage,
-            thumbnail_pr as thumbnailPr
-        from
-            Communities
-        where
-            thumbnail_message LIKE CONCAT('%',#{keyword},'%') or description LIKE CONCAT('%',#{keyword},'%')
-    </select>
-    <select id="searchCommunityPR" resultType="com.dxjunkyard.community.domain.CommunitySummary">
-        select
-            id,
-            name,
-            thumbnail_image_url as thumbnailImageUrl ,
-            thumbnail_message as thumbnailMessage,
-            thumbnail_pr as thumbnailPr
-        from
-            Communities
-        where
-            thumbnail_pr LIKE CONCAT('%',#{keyword},'%')
+            name LIKE CONCAT('%',#{keyword},'%') or thumbnail_message LIKE CONCAT('%',#{keyword},'%') or description LIKE CONCAT('%',#{keyword},'%') or thumbnail_pr LIKE CONCAT('%',#{keyword},'%')
     </select>
     <select id="getMyCommunityList" resultType="com.dxjunkyard.community.domain.CommunitySummary">
         select

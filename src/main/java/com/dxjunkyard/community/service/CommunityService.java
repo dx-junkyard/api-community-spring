@@ -36,27 +36,27 @@ public class CommunityService {
         }
     }
 
+    // 1コミュニティの詳細情報を取得する
+    public Community getCommunity(Long communityId) {
+        logger.info("getCommunity List");
+        try {
+            Community community = communityMapper.getCommunity(communityId);
+            return community;
+        } catch (Exception e) {
+            logger.info("addCommunity error");
+            logger.info("addCommunity error info : " + e.getMessage());
+            return null;
+        }
+    }
+
     // 公開設定になっているコミュニティをキーワード検索する
     public List<CommunitySummary> searchCommunityByKeyword(String keyword) {
         logger.info("keyword search : community");
         try {
             // todo: keywordをサニタイズする
-            List<CommunitySummary> communityList_a = communityMapper.searchCommunityName(keyword);
-            List<CommunitySummary> communityList_b = communityMapper.searchCommunityDescription(keyword);
-            List<CommunitySummary> communityList_c = communityMapper.searchCommunityPR(keyword);
-            List<CommunitySummary> communityList = new ArrayList<>();
-            communityList.addAll(communityList_a);
-            communityList.addAll(communityList_b);
-            communityList.addAll(communityList_c);
-            Set<Long> seenIds = new LinkedHashSet<>(); // 重複なしでIDを保持
-            List<CommunitySummary> uniqueList = new ArrayList<>();
-            for (CommunitySummary community : communityList) {
-                // 重複していないIDのみを新しいリストに追加
-                if (seenIds.add(community.getId())) {
-                    uniqueList.add(community);
-                }
-            }
-            return uniqueList;
+            // コミュニティ名・概要・PR文をキーワードで検索する
+            List<CommunitySummary> communityList = communityMapper.searchCommunity(keyword);
+            return communityList;
         } catch (Exception e) {
             logger.info("addCommunity error");
             logger.info("addCommunity error info : " + e.getMessage());

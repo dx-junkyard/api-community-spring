@@ -100,18 +100,14 @@ public class CommunityController {
     }
 
     // コミュニティ詳細の表示
-    @GetMapping("/community/{community_id}")
+    @GetMapping("/{community_id}")
     public ResponseEntity<?> getCommunity(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable("community_id") Long communityId) {
         try {
-            logger.info("my community list ");
-            String myId = authService.checkAuthHeader(authHeader);
-            if (myId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
-            }
-            CommunityResponse response = communityService.getCommunityInfo(communityId);
-            return ResponseEntity.ok(response);
+            logger.info("community info");
+            Community community = communityService.getCommunity(communityId);
+            return ResponseEntity.ok(community);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");

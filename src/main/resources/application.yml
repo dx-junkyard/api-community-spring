@@ -1,0 +1,7 @@
+encrypt:
+  jwt:
+    secret: 'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAPfawZ1qJkJ-sample-secret-please-replace'
+    expire: 5184000
+  db:
+    secret: 'MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAPfawZ1qJkJ-sample-secret-please-replace'
+  salt: 'JKoZIhvcNAQEBBQADSwAwSAJBA-sample-salt'
