@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Event {
-    private Integer eventId;
+    private Integer id;
     private String title;
     private Long communityId;
     private String ownerId;
@@ -23,8 +23,10 @@ public class Event {
     private LocalDateTime eventEnd;
     private LocalDateTime applicationStart;
     private LocalDateTime applicationEnd;
-    private String comment;
+    private String recruitmentMessage;
+    private String description;
     private Integer placeId;
     private Integer visibility;
+    private Integer status; // 0 : 募集期間前, 1 : 募集期間中, 2 : 募集期間終了, 3: イベント期間中, 4 : イベント終了
 }
 

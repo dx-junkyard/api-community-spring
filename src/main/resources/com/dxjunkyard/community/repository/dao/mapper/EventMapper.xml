@@ -3,35 +3,42 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dxjunkyard.community.repository.dao.mapper.EventMapper">
-    <insert id="addEvent" useGeneratedKeys="true" keyProperty="eventId">
-        insert into events(title,community_id,owner_id,event_start,event_end,application_start,application_end,comment,place_id,visibility)
-        values(#{title},#{communityId},#{ownerId},#{eventStart},#{eventEnd},#{applicationStart},#{applicationEnd},#{comment},#{placeId},#{visibility})
+    <insert id="addEvent" useGeneratedKeys="true" keyProperty="id">
+        insert into events(title,community_id,owner_id,event_start,event_end,application_start,application_end,recruitment_message,description,place_id,visibility,status)
+        values(#{title},#{communityId},#{ownerId},#{eventStart},#{eventEnd},#{applicationStart},#{applicationEnd},#{recruitmentMessage},#{description},#{placeId},#{visibility},#{status})
     </insert>
-    <select id="getEventList" resultType="com.dxjunkyard.community.domain.EventSummary">
+    <select id="searchEvent" resultType="com.dxjunkyard.community.domain.EventSummary">
         select
-            event_id as eventId
+            id
              , title
-             , owner_id as id
+             , community_id as communityId
+             , event_start as eventStart
+             , event_end as eventEnd
+             , application_start as applicationStart
+             , application_end as applicationEnd
+             , recruitment_message as recruitmentMessage
+             , place_id as placeId
+             , status as status
+        from Events
+        where
+            title LIKE CONCAT('%',#{keyword},'%') or description LIKE CONCAT('%',#{keyword},'%') or recruitment_message LIKE CONCAT('%',#{keyword},'%')
+    </select>
+    <select id="getEvent" resultType="com.dxjunkyard.community.domain.Event">
+        select
+            id
+             , title
+             , community_id as communityId
+             , owner_id as ownerId
              , event_start as eventStart
              , event_end as eventEdn
              , application_start as applicationStart
              , application_end as applicationEdn
+             , recruitment_message as recruitmentMessage
+             , description as description
              , place_id as placeId
              , visibility as visibility
+             , status as status
         from Events
-    </select>
-    <select id="getEvent" resultType="com.dxjunkyard.community.domain.Event">
-        select
-            event_id as eventId
-             , title
-             , owner_id as ownerId
-             , event_start as timeFrom
-             , event_end as timeTo
-             , application_start as applicationStart
-             , application_end as applicationEdn
-             , place_id as placeId
-             , visibility as visibility
-        from Events
-        where event_id = #{eventId}
+        where id = #{id}
     </select>
 </mapper>

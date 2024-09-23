@@ -34,9 +34,11 @@ public class EventDto {
                 .eventEnd(event_end)
                 .applicationStart(application_start)
                 .applicationEnd(application_end)
-                .comment(request.getComment())
+                .recruitmentMessage(request.getRecruitmentMessage())
+                .description(request.getDescription())
                 .placeId(request.getPlaceId())
                 .visibility(request.getVisibility())
+                .status(request.getStatus())
                 .build();
     }
 }

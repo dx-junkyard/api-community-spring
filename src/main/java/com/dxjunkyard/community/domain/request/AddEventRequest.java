@@ -31,7 +31,9 @@ public class AddEventRequest {
     private String ownerId;
     private Integer placeId;
     @Size(min = 1, max = 256, message = "OwnerId must be between 3 and 256 characters")
-    private String comment;
+    private String recruitmentMessage;
+    private String description;
     private Integer visibility;
+    private Integer status;
 }
 

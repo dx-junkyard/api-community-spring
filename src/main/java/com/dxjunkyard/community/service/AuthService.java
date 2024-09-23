@@ -63,14 +63,6 @@ public class AuthService {
         return userId;
     }
 
-    private String validateTokenAndGetUserId(String token) {
-        // JWTの検証を行い、正しい場合はユーザーIDを返す
-        if (token.equals("valid-token")) {
-            return "12345";  // 正常なユーザーIDを返す
-        }
-        return null;  // トークンが無効な場合はnullを返す
-    }
-
     public String createToken(String user_id) {
         String token = null;
         try {
@@ -112,9 +104,6 @@ public class AuthService {
         return user_id;
     }
 
-    public String getTokenByUserId(String user_id) {
-        return this.createToken(user_id);
-    }
 
     /* まだ使わない
     public String getLineId(String idToken) {
