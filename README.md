@@ -1,12 +1,5 @@
 # api-community-spring
 
-### イベント追加リクエストの例（１つのスポーツ種目を含むイベント追加）
-#### title  : イベント名
-#### timeFrom :開始時間, timeTo : 終了時間
-#### ownerId : イベント主催者のuser id
-#### comment : コメント 
-#### eventType : 1 公開イベント、2 クローズド開催（チーム内、団体内のみ）
-#### sportEventIdList : このイベントに含まれるスポーツ種目
 
 ### ユーザー登録
 ```
