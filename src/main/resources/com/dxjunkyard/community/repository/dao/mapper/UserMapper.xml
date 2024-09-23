@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dxjunkyard.community.repository.dao.mapper.UserMapper">
+    <insert id="registerUserProperty">
+        insert into Users(user_id,name,email,password,status)
+        values(
+                  #{user_id}
+              ,#{name}
+              ,#{email}
+              ,#{password}
+              ,#{status}
+              )
+    </insert>
+    <update id="updateUserProperty">
+        update Users set
+            name = #{name}
+                       ,email = #{email}
+                       ,password = #{password}
+                       ,status = #{status}
+        where user_id = #{user_id}
+    </update>
+    <select id="getUserProperty" resultType="com.dxjunkyard.community.domain.UserProperty">
+        select
+            user_id,
+            name,
+            password,
+            email,
+            profile,
+            status
+        from
+            Users
+        where
+            Users.user_id = #{user_id}
+          and
+            Users.status = 1
+    </select>
+    <select id="login" resultType="com.dxjunkyard.community.domain.UserProperty">
+        select
+            user_id,
+            name,
+            password,
+            email,
+            profile,
+            status
+        from
+            Users
+        where
+            Users.email = #{email}
+          and
+            Users.status = 1
+    </select>
+</mapper>

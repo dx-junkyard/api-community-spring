@@ -1,11 +1,8 @@
 package com.dxjunkyard.community.controller;
 
-import com.dxjunkyard.community.domain.request.AssignRoleRequest;
+import com.dxjunkyard.community.domain.UserProperty;
 import com.dxjunkyard.community.domain.request.UserLoginRequest;
 import com.dxjunkyard.community.domain.request.UserRegisterRequest;
-import com.dxjunkyard.community.domain.response.AdminResponse;
-import com.dxjunkyard.community.domain.response.InviteMemberRequest;
-import com.dxjunkyard.community.domain.response.MemberResponse;
 import com.dxjunkyard.community.domain.response.UserProfileResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,30 +25,32 @@ public class UserController {
     private AuthService authService;
 
     @Autowired
-    private CommunityService communityService;
+    private UserService userService;
 
 
-    // 権限の付与/変更
+    // ユーザー登録
     @PostMapping("/register")
-    public ResponseEntity<String> assignRole(
+    public ResponseEntity<String> registerUser(
             @RequestBody UserRegisterRequest request) {
         logger.info("user register API");
         try {
-            return ResponseEntity.ok("user register ok.");
+            String user_id = userService.createUser(request);
+            String token = authService.createToken(user_id);
+            return ResponseEntity.ok(token);
         } catch (Exception e) {
             logger.debug("user register error : " + e.getMessage());
             return ResponseEntity.badRequest().body("user register failed.");
         }
     }
 
-    // 権限の確認
+    // login
     @GetMapping("/login")
-    public ResponseEntity<String> getRole(
+    public ResponseEntity<String> login(
             @RequestBody UserLoginRequest request) {
         logger.info("login API");
-        // 権限の確認ロジック
         try {
-            String token = "valid-token";
+            String user_id = userService.login(request);
+            String token = authService.createToken(user_id);
             return ResponseEntity.ok(token);
         } catch (Exception e) {
             logger.debug("login error : " + e.getMessage());
@@ -59,31 +58,30 @@ public class UserController {
         }
     }
 
+    // ユーザーprofile取得
     @GetMapping("/profile")
     public ResponseEntity<UserProfileResponse> getUserProfile(
             @RequestHeader("Authorization") String authHeader) {
         logger.info("profile API");
 
+        // ユーザー認証 & OKならuser id取得
         String userId = authService.checkAuthHeader(authHeader);
         if (userId == null) {
-            return ResponseEntity.status(404).body(null);  // Not Found
+            return ResponseEntity.status(404).body(null);  // 認証失敗
         }
 
-        // ユーザーIDに基づいてプロフィールを取得（Mockのデータ使用）
-        UserProfileResponse profile = getUserProfileById(userId);
+        // ユーザーIDに基づいてプロフィールを取得
+        UserProperty property = userService.getUserProperty(userId);
+        UserProfileResponse profile = UserProfileResponse.builder()
+                .userId(property.getUser_id())
+                .email(property.getEmail())
+                .name(property.getName())
+                .profile(property.getProfile())
+                .build();
         if (profile == null) {
             return ResponseEntity.status(404).body(null);  // Not Found
         }
-
         return ResponseEntity.ok(profile);  // 成功時にプロフィールを返す
-    }
-
-    // Mock関数: ユーザーIDに基づいてユーザープロフィールを返す
-    private UserProfileResponse getUserProfileById(String userId) {
-        if (userId.equals("12345")) {
-            return new UserProfileResponse("12345", "John Doe", "john@example.com","profile");
-        }
-        return null;
     }
 
     @GetMapping("/hello")

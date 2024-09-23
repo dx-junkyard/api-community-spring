@@ -12,8 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CommunitySummary {
     private Long id;
-    private String ownerId;
     private String name;
-    private String profile;
+    private Long placeId;
+    private String thumbnailPr;
+    private String thumbnailImageUrl;
+    private String thumbnailMessage;
 }
 

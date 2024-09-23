@@ -15,8 +15,7 @@ public class Messages {
     private String messageId;
     private String userId;
     private String message;
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
-    // date
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
 

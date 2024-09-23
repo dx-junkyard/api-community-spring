@@ -1,8 +1,10 @@
 package com.dxjunkyard.community.controller;
 
+import com.dxjunkyard.community.domain.Community;
 import com.dxjunkyard.community.domain.CommunitySummary;
 import com.dxjunkyard.community.domain.request.AssignRoleRequest;
-import com.dxjunkyard.community.domain.request.CommunityEditRequest;
+import com.dxjunkyard.community.domain.request.EditCommunityRequest;
+import com.dxjunkyard.community.domain.request.NewCommunityRequest;
 import com.dxjunkyard.community.domain.response.AdminResponse;
 import com.dxjunkyard.community.domain.response.CommunityResponse;
 import com.dxjunkyard.community.domain.response.InviteMemberRequest;
@@ -64,7 +66,7 @@ public class CommunityController {
         }
     }
 
-    // 自分が所属しているコミュニティリストの表示
+    // community_idのコミュニティ（自分が所属しているものに限る）が連携しているコミュニティリストの表示
     @GetMapping("/{community_id}/ourcommunitylist")
     public ResponseEntity<?> getOurCommunityList(
             @RequestHeader("Authorization") String authHeader,
@@ -85,18 +87,27 @@ public class CommunityController {
     }
 
     // コミュニティリストの表示
-    @GetMapping("/community/{community_id}")
+    @GetMapping("/keywordsearch")
+    public ResponseEntity<?> searchCommunityByKeyword(@RequestParam String keyword) {
+        try {
+            logger.info("community_list");
+            List<CommunitySummary> communityList= communityService.searchCommunityByKeyword(keyword);
+            return ResponseEntity.ok(communityList);
+        } catch (Exception e) {
+            logger.debug("community" + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
+        }
+    }
+
+    // コミュニティ詳細の表示
+    @GetMapping("/{community_id}")
     public ResponseEntity<?> getCommunity(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable("community_id") Long communityId) {
         try {
-            logger.info("my community list ");
-            String myId = authService.checkAuthHeader(authHeader);
-            if (myId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
-            }
-            CommunityResponse response = communityService.getCommunityInfo(communityId);
-            return ResponseEntity.ok(response);
+            logger.info("community info");
+            Community community = communityService.getCommunity(communityId);
+            return ResponseEntity.ok(community);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
@@ -108,7 +119,7 @@ public class CommunityController {
     public ResponseEntity<?> getMyCommunityList(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable("community_id") Long communityId,
-            @RequestBody CommunityEditRequest request) {
+            @RequestBody EditCommunityRequest request) {
             try {
             logger.info("my community list ");
             String myId = authService.checkAuthHeader(authHeader);
@@ -124,17 +135,21 @@ public class CommunityController {
     }
 
     @PostMapping("/community/new")
-    public ResponseEntity<?> getMyCommunityList(
+    public ResponseEntity<?> newCommunity(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody CommunityEditRequest request) {
+            @RequestBody NewCommunityRequest request) {
             try {
             logger.info("my community list ");
             String myId = authService.checkAuthHeader(authHeader);
             if (myId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
             }
-            CommunityResponse response = communityService.newCommunityInfo(request);
-            return ResponseEntity.ok(response);
+            // owner_idの指定がない場合は、操作中のユーザーをオーナーに指定する
+            if (request.getOwnerId() == null) {
+                request.setOwnerId(myId);
+            }
+            Community community = communityService.createCommunityInfo(request);
+            return ResponseEntity.ok(community);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid community info.");

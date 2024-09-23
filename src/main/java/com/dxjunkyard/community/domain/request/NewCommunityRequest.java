@@ -1,10 +1,16 @@
 package com.dxjunkyard.community.domain.request;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class GetCommunityRequest {
-    private Long communityId;
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class NewCommunityRequest {
     private String ownerId;
     private Long placeId;
     private String name;
@@ -15,6 +21,4 @@ public class GetCommunityRequest {
     private String profileImageUrl;
     private Integer memberCount;
     private Integer visibility;
-    private String profile;
-    private Integer status;
 }
