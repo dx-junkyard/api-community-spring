@@ -9,6 +9,7 @@ import java.util.List;
 
 @Mapper
 public interface UserMapper {
+    String checkUserExists(UserProperty userProperty);
     UserProperty getUserProperty(String user_id);
     void registerUserProperty(UserProperty userProperty);
     void updateUserProperty(UserProperty userProperty);

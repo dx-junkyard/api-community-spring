@@ -8,9 +8,9 @@
                                 owner_id,
                                 place_id,
                                 name,
-                                thumbnail_image_url,
-                                thumbnail_message,
-                                thumbnail_pr,
+                                summary_image_url,
+                                summary_message,
+                                summary_pr,
                                 description,
                                 profile_image_url,
                                 member_count,
@@ -20,9 +20,9 @@
                    #{ownerId},
                    #{placeId},
                    #{name},
-                   #{thumbnailImageUrl},
-                   #{thumbnailMessage},
-                   #{thumbnailPr},
+                   #{summaryImageUrl},
+                   #{summaryMessage},
+                   #{summaryPr},
                    #{description},
                    #{profileImageUrl},
                    1,
@@ -49,9 +49,9 @@
         select
             id,
             name,
-            thumbnail_image_url as thumbnailImageUrl ,
-            thumbnail_message as thumbnailMessage,
-            thumbnail_pr as thumbnailPr
+            summary_image_url as summaryImageUrl ,
+            summary_message as summaryMessage,
+            summary_pr as summaryPr
         from
             Communities
     </select>
@@ -59,21 +59,21 @@
         select
             id,
             name,
-            thumbnail_image_url as thumbnailImageUrl ,
-            thumbnail_message as thumbnailMessage,
-            thumbnail_pr as thumbnailPr
+            summary_image_url as summaryImageUrl ,
+            summary_message as summaryMessage,
+            summary_pr as summaryPr
         from
             Communities
         where
-            name LIKE CONCAT('%',#{keyword},'%') or thumbnail_message LIKE CONCAT('%',#{keyword},'%') or description LIKE CONCAT('%',#{keyword},'%') or thumbnail_pr LIKE CONCAT('%',#{keyword},'%')
+            name LIKE CONCAT('%',#{keyword},'%') or summary_message LIKE CONCAT('%',#{keyword},'%') or description LIKE CONCAT('%',#{keyword},'%') or summary_pr LIKE CONCAT('%',#{keyword},'%')
     </select>
     <select id="getMyCommunityList" resultType="com.dxjunkyard.community.domain.CommunitySummary">
         select
             c.id as id,
             c.name as name,
-            c.thumbnail_image_url as thumbnailImageUrl ,
-            c.thumbnail_message as thumbnailMessage,
-            c.thumbnail_pr as thumbnailPr
+            c.summary_image_url as summaryImageUrl ,
+            c.summary_message as summaryMessage,
+            c.summary_pr as summaryPr
         from
             Communities AS c
         JOIN

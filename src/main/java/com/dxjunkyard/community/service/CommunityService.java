@@ -80,8 +80,8 @@ public class CommunityService {
         logger.info("getOurCommunity List");
         try {
             List<CommunitySummary> communityList= List.of(
-                    new CommunitySummary(1L,"community name", 1L,"thumbnailA_image_url","thumbnailA_message", "thumbnailA_pr"),
-                    new CommunitySummary(2L,"community name", 2L,"thumbnailB_image_url","thumbnailB_message", "thumbnailB_pr")
+                    new CommunitySummary(1L,"community name", 1L,"summaryA_image_url","summaryA_message", "summaryA_pr"),
+                    new CommunitySummary(2L,"community name", 2L,"summaryB_image_url","summaryB_message", "summaryB_pr")
             );
             return communityList;
         } catch (Exception e) {
@@ -122,9 +122,9 @@ public class CommunityService {
                     .ownerId(request.getOwnerId())
                     .placeId(request.getPlaceId())
                     .name(request.getName())
-                    .thumbnailImageUrl(request.getThumbnailImageUrl())
-                    .thumbnailMessage(request.getThumbnailMessage())
-                    .thumbnailPr(request.getThumbnailPr())
+                    .summaryImageUrl(request.getSummaryImageUrl())
+                    .summaryMessage(request.getSummaryMessage())
+                    .summaryPr(request.getSummaryPr())
                     .description(request.getDescription())
                     .profileImageUrl(request.getProfileImageUrl())
                     .memberCount(request.getMemberCount())

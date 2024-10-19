@@ -8,9 +8,9 @@ public class GetCommunityRequest {
     private String ownerId;
     private Long placeId;
     private String name;
-    private String thumbnailImageUrl;
-    private String thumbnailMessage;
-    private String thumbnailPr;
+    private String summaryImageUrl;
+    private String summaryMessage;
+    private String summaryPr;
     private String description;
     private String profileImageUrl;
     private Integer memberCount;

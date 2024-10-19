@@ -14,8 +14,8 @@ public class CommunitySummary {
     private Long id;
     private String name;
     private Long placeId;
-    private String thumbnailPr;
-    private String thumbnailImageUrl;
-    private String thumbnailMessage;
+    private String summaryPr;
+    private String summaryImageUrl;
+    private String summaryMessage;
 }
 
