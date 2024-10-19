@@ -11,14 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Base64;
 
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -34,11 +27,35 @@ public class UserService {
     @Value("${encrypt.db.secret}")
     private String encrypt_key;
 
+    /*
+     * lineIdが未登録であれば、それをもとに新規ユーザー登録を行う。
+     * 登録済であれば、対応するuserIdを返す。
+     */
+    public String createUserByLineId(String lineId) {
+        UUID uuid = UUID.randomUUID();
+        UserProperty user = UserProperty.builder()
+                .user_id(uuid.toString())
+                .line_id(lineId)
+                .email("")
+                .password("")
+                .name("")
+                .status(1)
+                .build();
+        String userId = userMapper.checkUserExists(user);
+        if (userId == null) {
+            userMapper.registerUserProperty(user);
+            userId = uuid.toString();
+        }
+        return userId;
+    }
+
+
     public String createUser(UserRegisterRequest request) {
         UUID uuid = UUID.randomUUID();
         userMapper.registerUserProperty(
                 UserProperty.builder()
                         .user_id(uuid.toString())
+                        .line_id("")
                         .email(request.getEmail())
                         .password(passwordEncoder.encode(request.getPassword()))
                         .name(request.getName())

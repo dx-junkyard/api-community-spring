@@ -43,6 +43,22 @@ public class UserController {
         }
     }
 
+    // ユーザー登録
+    @PostMapping("/register-lineid")
+    public ResponseEntity<String> registerUser(
+            @RequestBody String lineId) {
+        logger.info("user register API");
+        try {
+            // 該当のlineIdユーザーがいない場合だけつくる
+            String user_id = userService.createUserByLineId(lineId);
+            String token = authService.createToken(user_id);
+            return ResponseEntity.ok(token);
+        } catch (Exception e) {
+            logger.debug("user register error : " + e.getMessage());
+            return ResponseEntity.badRequest().body("user register failed.");
+        }
+    }
+
     // login
     @GetMapping("/login")
     public ResponseEntity<String> login(

@@ -3,10 +3,16 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dxjunkyard.community.repository.dao.mapper.UserMapper">
+    <select id="checkUserExists" resultType="String">
+        SELECT user_id
+        FROM Users
+        WHERE line_id = #{line_id}
+    </select>
     <insert id="registerUserProperty">
-        insert into Users(user_id,name,email,password,status)
+        insert into Users(user_id,line_id,name,email,password,status)
         values(
                   #{user_id}
+              ,#{line_id}
               ,#{name}
               ,#{email}
               ,#{password}

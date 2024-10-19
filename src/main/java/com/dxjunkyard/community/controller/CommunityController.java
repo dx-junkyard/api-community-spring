@@ -138,8 +138,8 @@ public class CommunityController {
     public ResponseEntity<?> newCommunity(
             @RequestHeader("Authorization") String authHeader,
             @RequestBody NewCommunityRequest request) {
-            try {
-            logger.info("my community list ");
+        logger.info("create new community");
+        try {
             String myId = authService.checkAuthHeader(authHeader);
             if (myId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
