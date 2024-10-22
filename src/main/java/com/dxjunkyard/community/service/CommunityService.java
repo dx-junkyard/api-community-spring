@@ -1,16 +1,22 @@
 package com.dxjunkyard.community.service;
 
-import com.dxjunkyard.community.domain.Community;
-import com.dxjunkyard.community.domain.CommunitySummary;
+import com.dxjunkyard.community.domain.*;
 import com.dxjunkyard.community.domain.request.EditCommunityRequest;
 import com.dxjunkyard.community.domain.request.NewCommunityRequest;
+import com.dxjunkyard.community.domain.response.CommunityPage;
 import com.dxjunkyard.community.domain.response.CommunityResponse;
+import com.dxjunkyard.community.domain.response.MyPage;
 import com.dxjunkyard.community.repository.dao.mapper.CommunityMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,6 +26,9 @@ import java.util.Set;
 @Service
 public class CommunityService {
     private Logger logger = LoggerFactory.getLogger(CommunityService.class);
+
+    @Value("${file.upload-dir}")
+    private String upload_dir;
 
     @Autowired
     CommunityMapper communityMapper;
@@ -43,8 +52,8 @@ public class CommunityService {
             Community community = communityMapper.getCommunity(communityId);
             return community;
         } catch (Exception e) {
-            logger.info("addCommunity error");
-            logger.info("addCommunity error info : " + e.getMessage());
+            logger.info("getCommunity error");
+            logger.info("getCommunity error info : " + e.getMessage());
             return null;
         }
     }
@@ -114,7 +123,7 @@ public class CommunityService {
         }
     }
 
-    public Community createCommunityInfo(NewCommunityRequest request) {
+    public Community createCommunityInfo(Community request) {
         logger.info("createCommunity");
         try {
             // コミュニティ新規登録
@@ -137,6 +146,121 @@ public class CommunityService {
         } catch (Exception e) {
             logger.info("addCommunity error");
             logger.info("addCommunity error info : " + e.getMessage());
+            return null;
+        }
+    }
+
+    public String savePhoto(String myId, MultipartFile photo) {
+        try {
+            // ファイルを保存する
+            String fileName = photo.getOriginalFilename();
+            String fileExt = ""; // ファイルの拡張子
+            if (fileName != null && fileName.contains(".")) {
+                fileExt = fileName.substring(fileName.lastIndexOf(".") + 1);
+            } else {
+                return ""; // 拡張子がない場合
+            }
+            String savePath = upload_dir + myId + "." + fileExt;
+            File saveFile = new File(savePath);
+            photo.transferTo(saveFile);
+            return savePath;
+        } catch (IOException e) {
+            logger.info("savePhoto error");
+            return "";
+        }
+    }
+
+    private List<CommunitySelector> mockCommunitySelectorList() {
+        CommunitySelector selector_a = CommunitySelector.builder()
+                .communityId(1L)
+                .communityName("西東京ブローガンマスターズ")
+                .build();
+        CommunitySelector selector_b = CommunitySelector.builder()
+                .communityId(2L)
+                .communityName("ヨガ教室")
+                .build();
+        CommunitySelector selector_c = CommunitySelector.builder()
+                .communityId(3L)
+                .communityName("西東京市サッカークラブ")
+                .build();
+        List<CommunitySelector> communitySelectorList = new ArrayList<>();
+        communitySelectorList.add(selector_a);
+        communitySelectorList.add(selector_b);
+        communitySelectorList.add(selector_c);
+        return communitySelectorList;
+    }
+
+    private List<UpcommingEvent> mockUpcommingEventList() {
+        UpcommingEvent event_a = UpcommingEvent.builder()
+                .eventId(1L)
+                .eventName("吹き矢大会")
+                .communityName("忍び")
+                .date("2024-10-1")
+                .build();
+        UpcommingEvent event_b = UpcommingEvent.builder()
+                .eventId(1L)
+                .eventName("テニス大会")
+                .communityName("ファイヤーボール")
+                .date("2024-10-3")
+                .build();
+        List<UpcommingEvent> upcommingEventList = new ArrayList<>();
+        upcommingEventList.add(event_a);
+        upcommingEventList.add(event_b);
+        return upcommingEventList;
+    }
+
+    private List<EventInvitation> mockEventInvitationList() {
+        EventInvitation event_a = EventInvitation.builder()
+                .eventName("吹き矢大会")
+                .communityName("忍び")
+                .invitationCode("1000")
+                .build();
+        EventInvitation event_b = EventInvitation.builder()
+                .eventName("テニス")
+                .communityName("ファイヤーボール")
+                .invitationCode("2000")
+                .build();
+        List<EventInvitation> eventInvitationList = new ArrayList<>();
+        eventInvitationList.add(event_a);
+        eventInvitationList.add(event_b);
+        return eventInvitationList;
+    }
+
+    private List<FavoriteCommunity> mockFavoriteCommunityList() {
+        FavoriteCommunity community_a = FavoriteCommunity.builder()
+                .communityName("忍び")
+                .communityId(1L)
+                .build();
+        FavoriteCommunity community_b = FavoriteCommunity.builder()
+                .communityName("ファイヤーボール")
+                .communityId(2L)
+                .build();
+        List<FavoriteCommunity> favoriteCommunityList = new ArrayList<>();
+        favoriteCommunityList.add(community_a);
+        favoriteCommunityList.add(community_b);
+        return favoriteCommunityList;
+    }
+
+
+    public MyPage getMyPage(String myId) {
+        MyPage myPage = MyPage.builder()
+                .communitySelectorList(mockCommunitySelectorList())
+                .upcommingEventList(mockUpcommingEventList())
+                .eventInvitationList(mockEventInvitationList())
+                .favoriteCommunityList(mockFavoriteCommunityList())
+                .build();
+        return myPage;
+    }
+
+    public CommunityPage getCommunityPage(Long communityId) {
+        logger.info("getCommunityPage");
+        try {
+            CommunityPage response = CommunityPage.builder()
+                    .build();
+            return response;
+        } catch (Exception e) {
+            logger.info("getCommunity error");
+            logger.info("getCommunity error info : " + e.getMessage());
             return null;
         }
     }

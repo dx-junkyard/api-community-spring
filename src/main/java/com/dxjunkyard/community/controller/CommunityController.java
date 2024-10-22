@@ -4,20 +4,26 @@ import com.dxjunkyard.community.domain.Community;
 import com.dxjunkyard.community.domain.CommunitySummary;
 import com.dxjunkyard.community.domain.request.AssignRoleRequest;
 import com.dxjunkyard.community.domain.request.EditCommunityRequest;
-import com.dxjunkyard.community.domain.request.NewCommunityRequest;
-import com.dxjunkyard.community.domain.response.AdminResponse;
-import com.dxjunkyard.community.domain.response.CommunityResponse;
-import com.dxjunkyard.community.domain.response.InviteMemberRequest;
-import com.dxjunkyard.community.domain.response.MemberResponse;
+import com.dxjunkyard.community.domain.response.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import com.dxjunkyard.community.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import javax.servlet.ServletContext;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,11 +35,15 @@ import java.util.Map;
 public class CommunityController {
     private Logger logger = LoggerFactory.getLogger(CommunityController.class);
 
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
     @Autowired
     private AuthService authService;
 
     @Autowired
     private CommunityService communityService;
+
 
     // コミュニティリストの表示
     @GetMapping("/communitylist")
@@ -80,6 +90,24 @@ public class CommunityController {
             // todo: roleチェック（myIdにcommunity_id表示の権限があるか？）
             List<CommunitySummary> communityList= communityService.getOurCommunityList(communityId);
             return ResponseEntity.ok(communityList);
+        } catch (Exception e) {
+            logger.debug("community" + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
+        }
+    }
+
+    // 自分が所属しているコミュニティリストの表示
+    @GetMapping("/myhome")
+    public ResponseEntity<?> getMyPageInfo(
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            logger.info("my home page");
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            MyPage mypage = communityService.getMyPage(myId);
+            return ResponseEntity.ok(mypage);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
@@ -137,7 +165,7 @@ public class CommunityController {
     @PostMapping("/community/new")
     public ResponseEntity<?> newCommunity(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody NewCommunityRequest request) {
+            @RequestBody Community request) {
         logger.info("create new community");
         try {
             String myId = authService.checkAuthHeader(authHeader);
@@ -285,6 +313,55 @@ public class CommunityController {
         return ResponseEntity.ok(members);
     }
 
+    @PostMapping("/community/photo/upload")
+    public ResponseEntity<?> uploadPhoto(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam("photo") MultipartFile photo
+    ) {
+        String myId= authService.checkAuthHeader(authHeader);
+        if (myId == null) {
+            return ResponseEntity.badRequest().body("auth failed.");
+        }
+        try {
+            String photoPath = communityService.savePhoto(myId, photo);
+            return ResponseEntity.ok(photoPath);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("ファイルの保存に失敗しました");
+        }
+    }
+
+    @GetMapping("/images/{filename}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        try {
+            Path file = Paths.get(uploadDir).resolve(filename);
+            Resource resource = new UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                // ファイルのMIMEタイプを推定する
+                String contentType = null;
+
+                // 画像の拡張子に応じてContent-Typeを手動で設定
+                if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+                    contentType = MediaType.IMAGE_JPEG_VALUE;
+                } else if (filename.endsWith(".png")) {
+                    contentType = MediaType.IMAGE_PNG_VALUE;
+                } else if (filename.endsWith(".gif")) {
+                    contentType = MediaType.IMAGE_GIF_VALUE;
+                } else {
+                    // それ以外の場合はデフォルトでバイナリファイルと見なす
+                    contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+                }
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 
     @GetMapping("/hello")
     @ResponseBody
