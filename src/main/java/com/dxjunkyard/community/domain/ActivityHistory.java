@@ -12,10 +12,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ActivityHistory {
-    private String userId;
-    private LocalDateTime timeFrom;
-    private LocalDateTime timeTo;
-    // date
-    // 活動内容
+    private Long eventId;
+    private LocalDateTime dateTime;
+    private String eventName;
+    private String location;
 }
 

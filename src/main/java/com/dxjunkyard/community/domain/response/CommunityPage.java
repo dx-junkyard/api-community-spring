@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CommunityPage {
     private Long id;
-    private Long location;
+    private String location;
     private String name;
     private String summaryImageUrl;
     private String profileImageUrl;
