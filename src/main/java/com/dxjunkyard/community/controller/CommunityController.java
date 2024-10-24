@@ -134,8 +134,8 @@ public class CommunityController {
             @PathVariable("community_id") Long communityId) {
         try {
             logger.info("community info");
-            Community community = communityService.getCommunity(communityId);
-            return ResponseEntity.ok(community);
+            CommunityPage communityPage = communityService.getCommunityPage(communityId);
+            return ResponseEntity.ok(communityPage);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");

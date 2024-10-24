@@ -81,4 +81,21 @@
         where
             cm.user_id = #{my_id}
     </select>
+    <select id="getCommunity" resultType="com.dxjunkyard.community.domain.Community">
+        select
+            id,
+            owner_id as ownerId,
+            place_id as placeId,
+            name,
+            summary_image_url as summaryImageUrl ,
+            summary_message as summaryMessage,
+            summary_pr as summaryPr,
+            description,
+            member_count as memberCount,
+            visibility as visibility
+        from
+            Communities as c
+        where
+            c.id = #{community_id}
+    </select>
 </mapper>

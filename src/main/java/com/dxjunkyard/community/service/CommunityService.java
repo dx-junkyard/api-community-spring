@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -193,15 +194,19 @@ public class CommunityService {
     private List<UpcommingEvent> mockUpcommingEventList() {
         UpcommingEvent event_a = UpcommingEvent.builder()
                 .eventId(1L)
+                .dateTime(LocalDateTime.of(2024, 11, 1, 15, 0))
                 .eventName("吹き矢大会")
                 .communityName("忍び")
-                .date("2024-10-1")
+                .location("某道場")
+                .invitationCode("1000")
                 .build();
         UpcommingEvent event_b = UpcommingEvent.builder()
-                .eventId(1L)
+                .eventId(2L)
+                .dateTime(LocalDateTime.of(2024, 11, 8, 15, 1))
                 .eventName("テニス大会")
                 .communityName("ファイヤーボール")
-                .date("2024-10-3")
+                .location("テニスコートA")
+                .invitationCode("1001")
                 .build();
         List<UpcommingEvent> upcommingEventList = new ArrayList<>();
         upcommingEventList.add(event_a);
@@ -211,13 +216,17 @@ public class CommunityService {
 
     private List<EventInvitation> mockEventInvitationList() {
         EventInvitation event_a = EventInvitation.builder()
+                .dateTime(LocalDateTime.of(2024, 11, 15, 15, 2))
                 .eventName("吹き矢大会")
                 .communityName("忍び")
+                .location("@某道場")
                 .invitationCode("1000")
                 .build();
         EventInvitation event_b = EventInvitation.builder()
+                .dateTime(LocalDateTime.of(2024, 11, 8, 15, 3))
                 .eventName("テニス")
                 .communityName("ファイヤーボール")
+                .location("@テニスコートA")
                 .invitationCode("2000")
                 .build();
         List<EventInvitation> eventInvitationList = new ArrayList<>();
@@ -252,10 +261,77 @@ public class CommunityService {
         return myPage;
     }
 
+    private List<EventSchedule> getMockScheduleList() {
+        EventSchedule event_a = EventSchedule.builder()
+                .eventId(2L)
+                .dateTime(LocalDateTime.of(2024, 11, 15, 15, 0))
+                .eventName("テニス大会A")
+                .location("テニスコート")
+                .favN(2L)
+                .build();
+        EventSchedule event_b = EventSchedule.builder()
+                .eventId(2L)
+                .dateTime(LocalDateTime.of(2024, 11, 22, 15, 0))
+                .eventName("テニス大会B")
+                .location("テニスコートA")
+                .favN(2L)
+                .build();
+        EventSchedule event_c = EventSchedule.builder()
+                .eventId(2L)
+                .dateTime(LocalDateTime.of(2024, 11, 23, 15, 0))
+                .eventName("テニス大会C")
+                .location("テニスコートA")
+                .favN(2L)
+                .build();
+        List<EventSchedule> eventScheduleList = new ArrayList<>();
+        eventScheduleList.add(event_a);
+        eventScheduleList.add(event_b);
+        eventScheduleList.add(event_c);
+        return eventScheduleList;
+    }
+
+    private List<ActivityHistory> getMockActivityHistoryList() {
+        ActivityHistory history_a = ActivityHistory.builder()
+                .eventId(2L)
+                .dateTime(LocalDateTime.of(2024, 11, 15, 15, 0))
+                .eventName("テニス大会A")
+                .location("テニスコート")
+                .build();
+        ActivityHistory history_b = ActivityHistory.builder()
+                .eventId(2L)
+                .dateTime(LocalDateTime.of(2024, 11, 22, 15, 0))
+                .eventName("テニス大会B")
+                .location("テニスコートA")
+                .build();
+        ActivityHistory history_c = ActivityHistory.builder()
+                .eventId(2L)
+                .dateTime(LocalDateTime.of(2024, 11, 23, 15, 0))
+                .eventName("テニス大会C")
+                .location("テニスコートA")
+                .build();
+        List<ActivityHistory> historyScheduleList = new ArrayList<>();
+        historyScheduleList.add(history_a);
+        historyScheduleList.add(history_b);
+        historyScheduleList.add(history_c);
+        return historyScheduleList;
+    }
+    private String getLocationInfo(Long placeId) {
+        return  "（位置情報なし）";
+    }
+
     public CommunityPage getCommunityPage(Long communityId) {
         logger.info("getCommunityPage");
         try {
+            Community com = getCommunity(communityId);
             CommunityPage response = CommunityPage.builder()
+                    .id(com.getId())
+                    .description(com.getDescription())
+                    .name(com.getName())
+                    .location(getLocationInfo(com.getPlaceId()))
+                    .summaryImageUrl(com.getSummaryImageUrl())
+                    .visibility(com.getVisibility())
+                    .activityHistoryList(getMockActivityHistoryList())
+                    .eventScheduleList(getMockScheduleList())
                     .build();
             return response;
         } catch (Exception e) {
