@@ -74,15 +74,14 @@ public class CommunityService {
         }
     }
 
-    public List<CommunitySummary> getMyCommunityList(String myId) {
+    public List<CommunitySelector> getMyCommunitySelector(String myId) {
         logger.info("getMyCommunity List");
         try {
-            List<CommunitySummary> communityList= communityMapper.getMyCommunityList(myId);
-            return communityList;
+            return communityMapper.getMyCommunitySelector(myId);
         } catch (Exception e) {
             logger.info("addCommunity error");
             logger.info("addCommunity error info : " + e.getMessage());
-            return new ArrayList<CommunitySummary>();
+            return new ArrayList<CommunitySelector>();
         }
     }
 
@@ -141,7 +140,6 @@ public class CommunityService {
                     .visibility(request.getVisibility())
                     .build();
             communityMapper.addCommunity(community);
-            // owner_idを作成したコミュニティに追加
             communityMapper.addCommunityMember(community.getId(),community.getOwnerId(),100,1,1);
             return community;
         } catch (Exception e) {
@@ -253,7 +251,7 @@ public class CommunityService {
 
     public MyPage getMyPage(String myId) {
         MyPage myPage = MyPage.builder()
-                .communitySelectorList(mockCommunitySelectorList())
+                .communitySelectorList(getMyCommunitySelector(myId))
                 .upcommingEventList(mockUpcommingEventList())
                 .eventInvitationList(mockEventInvitationList())
                 .favoriteCommunityList(mockFavoriteCommunityList())
@@ -294,20 +292,20 @@ public class CommunityService {
         ActivityHistory history_a = ActivityHistory.builder()
                 .eventId(2L)
                 .dateTime(LocalDateTime.of(2024, 11, 15, 15, 0))
-                .eventName("テニス大会A")
-                .location("テニスコート")
+                .eventName("大会A (test data)")
+                .location("location A")
                 .build();
         ActivityHistory history_b = ActivityHistory.builder()
                 .eventId(2L)
                 .dateTime(LocalDateTime.of(2024, 11, 22, 15, 0))
-                .eventName("テニス大会B")
-                .location("テニスコートA")
+                .eventName("大会B (test data)")
+                .location("location B")
                 .build();
         ActivityHistory history_c = ActivityHistory.builder()
                 .eventId(2L)
                 .dateTime(LocalDateTime.of(2024, 11, 23, 15, 0))
-                .eventName("テニス大会C")
-                .location("テニスコートA")
+                .eventName("大会C (test data)")
+                .location("location C")
                 .build();
         List<ActivityHistory> historyScheduleList = new ArrayList<>();
         historyScheduleList.add(history_a);

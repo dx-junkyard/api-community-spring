@@ -67,13 +67,10 @@
         where
             name LIKE CONCAT('%',#{keyword},'%') or summary_message LIKE CONCAT('%',#{keyword},'%') or description LIKE CONCAT('%',#{keyword},'%') or summary_pr LIKE CONCAT('%',#{keyword},'%')
     </select>
-    <select id="getMyCommunityList" resultType="com.dxjunkyard.community.domain.CommunitySummary">
+    <select id="getMyCommunitySelector" resultType="com.dxjunkyard.community.domain.CommunitySelector">
         select
-            c.id as id,
-            c.name as name,
-            c.summary_image_url as summaryImageUrl ,
-            c.summary_message as summaryMessage,
-            c.summary_pr as summaryPr
+            c.id as communityId,
+            c.name as communityName
         from
             Communities AS c
         JOIN

@@ -1,5 +1,6 @@
 package com.dxjunkyard.community.repository.dao.mapper;
 
+import com.dxjunkyard.community.domain.CommunitySelector;
 import com.dxjunkyard.community.domain.CommunitySummary;
 import org.apache.ibatis.annotations.Mapper;
 import com.dxjunkyard.community.domain.Community;
@@ -14,5 +15,5 @@ public interface CommunityMapper {
     Community getCommunity(Long community_id);
     List<CommunitySummary> getCommunityList();
     List<CommunitySummary> searchCommunity(String keyword);
-    List<CommunitySummary> getMyCommunityList(String my_id);
+    List<CommunitySelector> getMyCommunitySelector(String my_id);
 }

@@ -16,6 +16,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -54,13 +55,8 @@ public class AuthService {
         String token = authHeader.substring(7);  // "Bearer "の部分を除く
 
         logger.info("check token");
-        // トークンの正当性をMock関数で検証（実際にはサービス層でJWTの検証を行う）
-        String userId = getUserId(token);
-        //String userId = validateTokenAndGetUserId(token);
-        if (userId == null) {
-            return null;  // Unauthorized
-        }
-        return userId;
+        // トークンの正当性を検証し、問題なければuserIdが入手できる
+        return getUserId(token);
     }
 
     public String createToken(String user_id) {
@@ -68,6 +64,8 @@ public class AuthService {
         try {
             Date expDate = new Date();
             expDate.setTime(expDate.getTime() + jwt_expire);
+            SimpleDateFormat formatter = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
+            logger.info("jwt expire on {}", formatter.format(expDate));
 
             Algorithm algorithm = Algorithm.HMAC256(jwt_secret);
             token = JWT.create()

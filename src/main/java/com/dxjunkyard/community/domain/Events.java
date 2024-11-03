@@ -6,25 +6,22 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Date;
-import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Event {
-    private Integer id;
+public class Events {
+    private Long id;
     private String title;
     private Long communityId;
     private String ownerId;
-    private LocalDateTime eventStart;
-    private LocalDateTime eventEnd;
-    private LocalDateTime applicationStart;
-    private LocalDateTime applicationEnd;
+    private Timestamp eventStart;
+    private Timestamp eventEnd;
+    private Timestamp applicationStart;
+    private Timestamp applicationEnd;
     private String recruitmentMessage;
     private String description;
     private Integer placeId;

@@ -4,8 +4,32 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.dxjunkyard.community.repository.dao.mapper.EventMapper">
     <insert id="addEvent" useGeneratedKeys="true" keyProperty="id">
-        insert into events(title,community_id,owner_id,event_start,event_end,application_start,application_end,recruitment_message,description,place_id,visibility,status)
-        values(#{title},#{communityId},#{ownerId},#{eventStart},#{eventEnd},#{applicationStart},#{applicationEnd},#{recruitmentMessage},#{description},#{placeId},#{visibility},#{status})
+        insert into Events(
+                        title
+                          ,community_id
+                          ,owner_id
+                          ,event_start
+                          ,event_end
+                          ,application_start
+                          ,application_end
+                          ,recruitment_message
+                          ,description
+                          ,place_id
+                          ,visibility
+                          ,status)
+        values(
+              #{title}
+              ,#{communityId}
+              ,#{ownerId}
+              ,#{eventStart}
+              ,#{eventEnd}
+              ,#{applicationStart}
+              ,#{applicationEnd}
+              ,#{recruitmentMessage}
+              ,#{description}
+              ,#{placeId}
+              ,#{visibility}
+              ,#{status})
     </insert>
     <select id="searchEvent" resultType="com.dxjunkyard.community.domain.EventSummary">
         select
@@ -23,16 +47,16 @@
         where
             title LIKE CONCAT('%',#{keyword},'%') or description LIKE CONCAT('%',#{keyword},'%') or recruitment_message LIKE CONCAT('%',#{keyword},'%')
     </select>
-    <select id="getEvent" resultType="com.dxjunkyard.community.domain.Event">
+    <select id="getEvent" resultType="com.dxjunkyard.community.domain.Events">
         select
             id
              , title
              , community_id as communityId
              , owner_id as ownerId
              , event_start as eventStart
-             , event_end as eventEdn
+             , event_end as eventEnd
              , application_start as applicationStart
-             , application_end as applicationEdn
+             , application_end as applicationEnd
              , recruitment_message as recruitmentMessage
              , description as description
              , place_id as placeId

@@ -1,10 +1,10 @@
 package com.dxjunkyard.community.service;
 
 import com.dxjunkyard.community.domain.EventSummary;
-import com.dxjunkyard.community.domain.Event;
-import com.dxjunkyard.community.domain.EventSummary;
+import com.dxjunkyard.community.domain.Events;
 import com.dxjunkyard.community.domain.dto.EventDto;
 import com.dxjunkyard.community.domain.request.AddEventRequest;
+import com.dxjunkyard.community.domain.response.EventPage;
 import com.dxjunkyard.community.repository.dao.mapper.EventMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @Service
@@ -52,10 +50,10 @@ public class EventService {
     }
 
 
-    public Event getEvent(Long eventId) {
+    public Events getEvent(Long eventId) {
         logger.info("getEvent List");
         try {
-            Event response = eventMapper.getEvent(eventId);
+            Events response = eventMapper.getEvent(eventId);
             return response;
         } catch (Exception e) {
             logger.info("addEvent error");
@@ -64,11 +62,11 @@ public class EventService {
         }
     }
 
-    public Event createEvent(AddEventRequest request) {
+    public Events createEvent(EventPage request) {
         logger.info("createEvent");
         try {
             // イベント新規登録
-            Event event = EventDto.event(request);
+            Events event = EventDto.Page2event(request);
             eventMapper.addEvent(event);
             // todo: owner_idを作成したイベントに追加
             // eventMapper.addEventMember(event.getEventId(),event.getCommunityId(),100,1,1);

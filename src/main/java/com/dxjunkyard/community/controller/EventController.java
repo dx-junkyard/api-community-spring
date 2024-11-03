@@ -1,8 +1,10 @@
 package com.dxjunkyard.community.controller;
 
-import com.dxjunkyard.community.domain.Event;
+import com.dxjunkyard.community.domain.Events;
 import com.dxjunkyard.community.domain.EventSummary;
+import com.dxjunkyard.community.domain.dto.EventDto;
 import com.dxjunkyard.community.domain.request.AddEventRequest;
+import com.dxjunkyard.community.domain.response.EventPage;
 import com.dxjunkyard.community.domain.response.InviteMemberRequest;
 import com.dxjunkyard.community.domain.response.MemberResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -108,7 +109,7 @@ public class EventController {
             if (myId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
             }
-            Event response = eventService.getEvent(eventId);
+            Events response = eventService.getEvent(eventId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.debug("event" + e.getMessage());
@@ -159,7 +160,7 @@ public class EventController {
     @PostMapping("/event/new")
     public ResponseEntity<?> newEvent(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody AddEventRequest request) {
+            @RequestBody EventPage request) {
             try {
             logger.info("my event list ");
             String myId = authService.checkAuthHeader(authHeader);
@@ -168,12 +169,13 @@ public class EventController {
             }
             // todo : コミュニティに対するイベント作成権限の有無を確認
             // owner_idの指定がない場合は、操作中のユーザーをオーナーに指定する
-            //   todo : ここはエラーで良いと思う
             if (request.getOwnerId() == null) {
                 request.setOwnerId(myId);
             }
-            Event event = eventService.createEvent(request);
-            return ResponseEntity.ok(event);
+            Events event = eventService.createEvent(request);
+            Events newEvent = eventService.getEvent(event.getId());
+            EventPage eventPage = EventDto.eventPage(newEvent);
+            return ResponseEntity.ok(eventPage);
         } catch (Exception e) {
             logger.debug("event" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid event info.");
