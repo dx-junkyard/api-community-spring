@@ -59,6 +59,7 @@ public class CommunityController {
     }
 
     // 自分が所属しているコミュニティリストの表示
+    /*
     @GetMapping("/mycommunitylist")
     public ResponseEntity<?> getMyCommunityList(
             @RequestHeader("Authorization") String authHeader) {
@@ -75,6 +76,7 @@ public class CommunityController {
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
         }
     }
+     */
 
     // community_idのコミュニティ（自分が所属しているものに限る）が連携しているコミュニティリストの表示
     @GetMapping("/{community_id}/ourcommunitylist")
