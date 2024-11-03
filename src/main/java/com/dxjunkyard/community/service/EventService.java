@@ -50,11 +50,11 @@ public class EventService {
     }
 
 
-    public Events getEvent(Long eventId) {
+    public EventPage getEvent(Long eventId) {
         logger.info("getEvent List");
         try {
-            Events response = eventMapper.getEvent(eventId);
-            return response;
+            Events event = eventMapper.getEvent(eventId);
+            return EventDto.eventPage(event);
         } catch (Exception e) {
             logger.info("addEvent error");
             logger.info("addEvent error info : " + e.getMessage());

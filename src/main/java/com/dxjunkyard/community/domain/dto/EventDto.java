@@ -23,6 +23,9 @@ public class EventDto {
                 .applicationEnd(event.getApplicationEnd().toLocalDateTime())
                 .eventStart(event.getEventStart().toLocalDateTime())
                 .eventEnd(event.getEventEnd().toLocalDateTime())
+                .placeId(event.getPlaceId())
+                .visibility(event.getVisibility())
+                .status(event.getStatus())
                 .build();
         return eventPage;
     }

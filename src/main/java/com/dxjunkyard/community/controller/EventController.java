@@ -99,7 +99,7 @@ public class EventController {
     }
 
     // イベント詳細の表示
-    @GetMapping("/event/{event_id}")
+    @GetMapping("/event/{event_id}/display")
     public ResponseEntity<?> getEvent(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable("event_id") Long eventId) {
@@ -109,7 +109,7 @@ public class EventController {
             if (myId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
             }
-            Events response = eventService.getEvent(eventId);
+            EventPage response = eventService.getEvent(eventId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.debug("event" + e.getMessage());
@@ -173,8 +173,7 @@ public class EventController {
                 request.setOwnerId(myId);
             }
             Events event = eventService.createEvent(request);
-            Events newEvent = eventService.getEvent(event.getId());
-            EventPage eventPage = EventDto.eventPage(newEvent);
+            EventPage eventPage = eventService.getEvent(event.getId());
             return ResponseEntity.ok(eventPage);
         } catch (Exception e) {
             logger.debug("event" + e.getMessage());
