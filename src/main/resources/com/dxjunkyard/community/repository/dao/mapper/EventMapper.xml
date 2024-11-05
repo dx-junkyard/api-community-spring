@@ -31,17 +31,37 @@
               ,#{visibility}
               ,#{status})
     </insert>
-    <select id="searchEvent" resultType="com.dxjunkyard.community.domain.EventSummary">
+    <select id="getEventList" resultType="com.dxjunkyard.community.domain.Events">
         select
             id
              , title
              , community_id as communityId
+             , owner_id as ownerId
              , event_start as eventStart
              , event_end as eventEnd
              , application_start as applicationStart
              , application_end as applicationEnd
              , recruitment_message as recruitmentMessage
+             , description as description
              , place_id as placeId
+             , visibility as visibility
+             , status as status
+        from Events
+    </select>
+    <select id="searchEvent" resultType="com.dxjunkyard.community.domain.Events">
+        select
+            id
+             , title
+             , community_id as communityId
+             , owner_id as ownerId
+             , event_start as eventStart
+             , event_end as eventEnd
+             , application_start as applicationStart
+             , application_end as applicationEnd
+             , recruitment_message as recruitmentMessage
+             , description as description
+             , place_id as placeId
+             , visibility as visibility
              , status as status
         from Events
         where

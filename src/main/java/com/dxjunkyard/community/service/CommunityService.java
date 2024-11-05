@@ -17,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -65,7 +67,9 @@ public class CommunityService {
         try {
             // todo: keywordをサニタイズする
             // コミュニティ名・概要・PR文をキーワードで検索する
-            List<CommunitySummary> communityList = communityMapper.searchCommunity(keyword);
+            String decodedKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8.name());
+            List<CommunitySummary> communityList = communityMapper.searchCommunity(decodedKeyword);
+            //List<CommunitySummary> communityList = communityMapper.searchCommunity(keyword);
             return communityList;
         } catch (Exception e) {
             logger.info("addCommunity error");

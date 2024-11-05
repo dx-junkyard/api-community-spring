@@ -1,9 +1,6 @@
 package com.dxjunkyard.community.controller;
 
 import com.dxjunkyard.community.domain.Events;
-import com.dxjunkyard.community.domain.EventSummary;
-import com.dxjunkyard.community.domain.dto.EventDto;
-import com.dxjunkyard.community.domain.request.AddEventRequest;
 import com.dxjunkyard.community.domain.response.EventPage;
 import com.dxjunkyard.community.domain.response.InviteMemberRequest;
 import com.dxjunkyard.community.domain.response.MemberResponse;
@@ -37,7 +34,7 @@ public class EventController {
     public ResponseEntity<?> getEventList() {
         try {
             logger.info("event_list");
-            List<EventSummary> eventList= eventService.getEventList();
+            List<EventPage> eventList= eventService.getEventList();
             return ResponseEntity.ok(eventList);
         } catch (Exception e) {
             logger.debug("event" + e.getMessage());
@@ -45,52 +42,25 @@ public class EventController {
         }
     }
 
-    /*
-    // 自分が登録しているイベントリストの表示
-    @GetMapping("/myeventlist")
-    public ResponseEntity<?> getMyEventList(
-            @RequestHeader("Authorization") String authHeader) {
+
+    // コミュニティリストの表示
+    @GetMapping("/keyword-search")
+    public ResponseEntity<?> searchCommunityByKeyword(@RequestParam(value = "keyword", required = false) String keyword) {
         try {
-            logger.info("my event list ");
-            String myId = authService.checkAuthHeader(authHeader);
-            if (myId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
-            }
-            List<EventSummary> eventList= eventService.getMyEventList(myId);
+            logger.info("community_list");
+            List<EventPage> eventList= eventService.searchEventByKeyword(keyword);
             return ResponseEntity.ok(eventList);
         } catch (Exception e) {
-            logger.debug("event" + e.getMessage());
+            logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
         }
     }
-
-    // 自分が所属するコミュニティ(community_id)が主催・共同開催するイベントリストの表示
-    @GetMapping("/{community_id}/oureventlist")
-    public ResponseEntity<?> getOurEventList(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable("community_id") Long communityId) {
-        try {
-            logger.info("our event list event_id: " + eventId.toString());
-            String myId = authService.checkAuthHeader(authHeader);
-            if (myId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
-            }
-            // todo: roleチェック（myIdにevent_id表示の権限があるか？）
-            List<EventSummary> eventList= eventService.getOurEventList(communityId);
-            return ResponseEntity.ok(eventList);
-        } catch (Exception e) {
-            logger.debug("event" + e.getMessage());
-            return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
-        }
-    }
-     */
-
     // イベントリストの表示
     @GetMapping("/keywordsearch")
     public ResponseEntity<?> searchEventByKeyword(@RequestParam String keyword) {
         try {
             logger.info("event_list");
-            List<EventSummary> eventList= eventService.searchEventByKeyword(keyword);
+            List<EventPage> eventList= eventService.searchEventByKeyword(keyword);
             return ResponseEntity.ok(eventList);
         } catch (Exception e) {
             logger.debug("event" + e.getMessage());
@@ -117,46 +87,6 @@ public class EventController {
         }
     }
 
-    // イベントリストの表示
-    /*
-    @PostMapping("/event/{event_id}/edit")
-    public ResponseEntity<?> getMyEventList(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable("event_id") Long eventId,
-            @RequestBody EditEventRequest request) {
-            try {
-            logger.info("my event list ");
-            String myId = authService.checkAuthHeader(authHeader);
-            if (myId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
-            }
-            EventResponse response = eventService.editEventInfo(request);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            logger.debug("event" + e.getMessage());
-            return ResponseEntity.badRequest().body("Invalid event info");
-        }
-    }
-
-    // イベント管理者リストの取得
-    @GetMapping("/{event_id}/admins")
-    public ResponseEntity<?> getAdmins(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable("event_id") Long eventId) {
-        // 管理者リストを取得するロジック
-        String myId = authService.checkAuthHeader(authHeader);
-        // todo: roleチェック（myIdにイベント管理者リスト表示権限があるか？）
-        if (myId == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
-        }
-        List<AdminResponse> admins = List.of(
-                new AdminResponse(1L, "Admin1"),
-                new AdminResponse(2L, "Admin2")
-        );
-        return ResponseEntity.ok(admins);
-    }
-     */
-
     @PostMapping("/event/new")
     public ResponseEntity<?> newEvent(
             @RequestHeader("Authorization") String authHeader,
@@ -180,7 +110,6 @@ public class EventController {
             return ResponseEntity.badRequest().body("Invalid event info.");
         }
     }
-
 
 
     // メンバーの招待
@@ -227,7 +156,6 @@ public class EventController {
         );
         return ResponseEntity.ok(members);
     }
-
 
     @GetMapping("/hello")
     @ResponseBody

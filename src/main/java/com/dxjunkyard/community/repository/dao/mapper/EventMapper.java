@@ -2,6 +2,7 @@ package com.dxjunkyard.community.repository.dao.mapper;
 
 
 import com.dxjunkyard.community.domain.EventSummary;
+import com.dxjunkyard.community.domain.response.EventPage;
 import org.apache.ibatis.annotations.Mapper;
 import com.dxjunkyard.community.domain.Events;
 
@@ -11,7 +12,7 @@ import java.util.List;
 public interface EventMapper {
     void addEvent(Events event);
     Events getEvent(Long eventId);
-    List<EventSummary> getEventList();
-    List<EventSummary> searchEvent(String keyword);
+    List<Events> getEventList();
+    List<Events> searchEvent(String keyword);
 //    List<Event> getEventList(String keyword);
 }
