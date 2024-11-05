@@ -11,8 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -22,39 +25,46 @@ public class EventService {
     @Autowired
     EventMapper eventMapper;
 
-    public List<EventSummary> getEventList() {
+    public List<EventPage> getEventList() {
         logger.info("getEvent List");
         try {
-            List<EventSummary> eventList = eventMapper.getEventList();
-            return eventList;
+            List<Events> eventList = eventMapper.getEventList();
+            List<EventPage> eventPageList = eventList.stream()
+                    .map(EventDto::eventPage)
+                    .collect(Collectors.toList());
+            return eventPageList;
         } catch (Exception e) {
             logger.info("addEvent error");
             logger.info("addEvent error info : " + e.getMessage());
-            return new ArrayList<EventSummary>();
+            return new ArrayList<EventPage>();
         }
     }
 
     // 公開設定になっているイベントをキーワード検索する
-    public List<EventSummary> searchEventByKeyword(String keyword) {
+    public List<EventPage> searchEventByKeyword(String keyword) {
         logger.info("keyword search : event");
         try {
             // todo: keywordをサニタイズする
             // イベント名・概要・PR文をキーワードで検索する
-            List<EventSummary> eventList = eventMapper.searchEvent(keyword);
-            return eventList;
+            String decodedKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8.name());
+            List<Events> eventList = eventMapper.searchEvent(decodedKeyword);
+            List<EventPage> eventPageList = eventList.stream()
+                    .map(EventDto::eventPage)
+                    .collect(Collectors.toList());
+            return eventPageList;
         } catch (Exception e) {
             logger.info("addEvent error");
             logger.info("addEvent error info : " + e.getMessage());
-            return new ArrayList<EventSummary>();
+            return new ArrayList<EventPage>();
         }
     }
 
 
-    public Events getEvent(Long eventId) {
+    public EventPage getEvent(Long eventId) {
         logger.info("getEvent List");
         try {
-            Events response = eventMapper.getEvent(eventId);
-            return response;
+            Events event = eventMapper.getEvent(eventId);
+            return EventDto.eventPage(event);
         } catch (Exception e) {
             logger.info("addEvent error");
             logger.info("addEvent error info : " + e.getMessage());

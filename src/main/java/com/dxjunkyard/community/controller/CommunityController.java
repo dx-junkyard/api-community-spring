@@ -22,9 +22,6 @@ import org.springframework.http.HttpHeaders;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import javax.servlet.ServletContext;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -58,25 +55,6 @@ public class CommunityController {
         }
     }
 
-    // 自分が所属しているコミュニティリストの表示
-    /*
-    @GetMapping("/mycommunitylist")
-    public ResponseEntity<?> getMyCommunityList(
-            @RequestHeader("Authorization") String authHeader) {
-        try {
-            logger.info("my community list ");
-            String myId = authService.checkAuthHeader(authHeader);
-            if (myId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
-            }
-            List<CommunitySummary> communityList= communityService.getMyCommunityList(myId);
-            return ResponseEntity.ok(communityList);
-        } catch (Exception e) {
-            logger.debug("community" + e.getMessage());
-            return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
-        }
-    }
-     */
 
     // community_idのコミュニティ（自分が所属しているものに限る）が連携しているコミュニティリストの表示
     @GetMapping("/{community_id}/ourcommunitylist")
@@ -117,8 +95,8 @@ public class CommunityController {
     }
 
     // コミュニティリストの表示
-    @GetMapping("/keywordsearch")
-    public ResponseEntity<?> searchCommunityByKeyword(@RequestParam String keyword) {
+    @GetMapping("/keyword-search")
+    public ResponseEntity<?> searchCommunityByKeyword(@RequestParam(value = "keyword", required = false) String keyword) {
         try {
             logger.info("community_list");
             List<CommunitySummary> communityList= communityService.searchCommunityByKeyword(keyword);
