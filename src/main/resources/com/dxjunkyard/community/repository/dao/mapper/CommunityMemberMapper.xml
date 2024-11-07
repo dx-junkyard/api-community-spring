@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dxjunkyard.community.repository.dao.mapper.CommunityMemberMapper">
+    <!-- Insert or Update CommunityMember -->
+    <insert id="insertOrUpdateCommunityMember">
+        INSERT INTO CommunityMembers (
+            community_id,
+            user_id,
+            role_id,
+            status,
+            fav_flg
+        )
+        VALUES (
+                   #{communityId},
+                   #{userId},
+                   #{role},
+                   #{status},
+                   #{fav}
+               )
+            ON DUPLICATE KEY UPDATE
+                                 role_id = #{role},
+                                 status = #{status},
+                                 fav_flg = #{fav};
+    </insert>
+    <!-- Select CommunityMember by communityId and userId -->
+    <select id="selectCommunityMember" resultType="com.dxjunkyard.community.domain.CommunityMembers">
+        SELECT
+            community_id as communityId
+            ,user_id as userId
+            ,role_id as role
+            ,status as status
+            ,fav_flg as fav
+        FROM CommunityMembers
+        WHERE community_id = #{communityId}
+          AND user_id = #{userId}
+    </select>
+</mapper>
