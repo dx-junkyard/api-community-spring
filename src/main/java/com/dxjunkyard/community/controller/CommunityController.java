@@ -4,6 +4,7 @@ import com.dxjunkyard.community.domain.Community;
 import com.dxjunkyard.community.domain.CommunitySummary;
 import com.dxjunkyard.community.domain.request.AssignRoleRequest;
 import com.dxjunkyard.community.domain.request.EditCommunityRequest;
+import com.dxjunkyard.community.domain.request.FavoriteRequest;
 import com.dxjunkyard.community.domain.response.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,9 @@ public class CommunityController {
 
     @Autowired
     private CommunityService communityService;
+
+    @Autowired
+    private CommunityMemberService communityMemberService;
 
 
     // コミュニティリストの表示
@@ -122,7 +126,19 @@ public class CommunityController {
         }
     }
 
-    // コミュニティリストの表示
+    @PostMapping("/favorite")
+    public ResponseEntity<Integer> toggleFavorite(@RequestBody FavoriteRequest favoriteRequest,
+                                                  @RequestHeader("Authorization") String authHeader) {
+
+        // ここでデータベースの更新処理を行う（お気に入り状態の設定/解除）
+        String myId = authService.checkAuthHeader(authHeader);
+        if (myId == null) {
+            return ResponseEntity.ok(0);
+        }
+        Integer updateSuccess = communityMemberService.updateFavoriteStatus(myId, 0, favoriteRequest);
+        return ResponseEntity.ok(updateSuccess);
+    }
+        // コミュニティリストの表示
     @PostMapping("/community/{community_id}/edit")
     public ResponseEntity<?> getMyCommunityList(
             @RequestHeader("Authorization") String authHeader,

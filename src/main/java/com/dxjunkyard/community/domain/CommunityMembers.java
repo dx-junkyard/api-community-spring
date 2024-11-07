@@ -13,10 +13,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommunityMembers {
-    private Long userId;
-    private String userName;
-    private String userRole;
-    private String profile;
-    private List<ActivityHistory> activityHistory;
+    private Long communityId;
+    private String userId;
+    private Integer role;
+    private Integer status;
+    private Integer fav;
 }
 
