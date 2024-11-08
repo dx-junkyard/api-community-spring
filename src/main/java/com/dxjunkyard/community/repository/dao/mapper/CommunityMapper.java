@@ -10,8 +10,8 @@ import java.util.List;
 @Mapper
 public interface CommunityMapper {
     void addCommunity(Community community);
-    void addCommunityMember(Long community_id, String user_id, Integer role_id, Integer status, Integer fav);
-    Community editCommunity(Community community);
+    void updateCommunity(Community community);
+    void updatePhotoPath(Long communityId, String photoPath);
     Community getCommunity(Long community_id);
     List<CommunitySummary> getCommunityList();
     List<CommunitySummary> searchCommunity(String keyword);

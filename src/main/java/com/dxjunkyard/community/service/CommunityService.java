@@ -7,6 +7,7 @@ import com.dxjunkyard.community.domain.response.CommunityPage;
 import com.dxjunkyard.community.domain.response.CommunityResponse;
 import com.dxjunkyard.community.domain.response.MyPage;
 import com.dxjunkyard.community.repository.dao.mapper.CommunityMapper;
+import com.dxjunkyard.community.repository.dao.mapper.CommunityMemberMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,9 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static com.google.common.io.Files.getFileExtension;
 
 
 @Service
@@ -33,8 +33,14 @@ public class CommunityService {
     @Value("${file.upload-dir}")
     private String upload_dir;
 
+    @Value("${file.image-dir}")
+    private String image_dir;
+
     @Autowired
     CommunityMapper communityMapper;
+
+    @Autowired
+    private CommunityMemberMapper communityMemberMapper;
 
     public List<CommunitySummary> getCommunityList() {
         logger.info("getCommunity List");
@@ -69,7 +75,6 @@ public class CommunityService {
             // コミュニティ名・概要・PR文をキーワードで検索する
             String decodedKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8.name());
             List<CommunitySummary> communityList = communityMapper.searchCommunity(decodedKeyword);
-            //List<CommunitySummary> communityList = communityMapper.searchCommunity(keyword);
             return communityList;
         } catch (Exception e) {
             logger.info("addCommunity error");
@@ -144,12 +149,67 @@ public class CommunityService {
                     .visibility(request.getVisibility())
                     .build();
             communityMapper.addCommunity(community);
-            communityMapper.addCommunityMember(community.getId(),community.getOwnerId(),100,1,1);
+            communityMemberMapper.addCommunityMember(community.getId(),community.getOwnerId(),100,1,1);
+            // String imagePath = image_dir + renamePhoto(community.getOwnerId(), community.getId());
+            // communityMapper.updatePhotoPath(community.getId(), imagePath);
             return community;
         } catch (Exception e) {
             logger.info("addCommunity error");
             logger.info("addCommunity error info : " + e.getMessage());
             return null;
+        }
+    }
+
+    public Community updateCommunityInfo(Community request) {
+        logger.info("createCommunity");
+        try {
+            // コミュニティ新規登録
+            communityMapper.updateCommunity(request);
+            return request;
+        } catch (Exception e) {
+            logger.info("addCommunity error");
+            logger.info("addCommunity error info : " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Optional<File> findFileWithId(String myId) {
+        File directory = new File(upload_dir);
+        if (directory.exists() && directory.isDirectory()) {
+            File[] files = directory.listFiles((dir, name) -> name.startsWith(myId + "."));
+            if (files != null && files.length > 0) {
+                return Optional.of(files[0]);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public String renamePhoto(String myId, Long communityId) {
+        try {
+            // ディレクトリ内で myId に一致するファイルを探す
+            Optional<File> originalFileOptional = findFileWithId(myId);
+
+            if (originalFileOptional.isPresent()) {
+                File originalFile = originalFileOptional.get();
+                String fileExt = getFileExtension(originalFile.getName());
+
+                String newFileName = communityId + "." + fileExt;
+                String newFilePath = upload_dir + "/" + newFileName;
+                File renamedFile = new File(newFilePath);
+
+                if (originalFile.renameTo(renamedFile)) {
+                    System.out.println("File renamed successfully to " + renamedFile.getName());
+                    return newFileName;
+                } else {
+                    System.out.println("Failed to rename file");
+                }
+            } else {
+                System.out.println("No file found with id: " + myId);
+            }
+            return "";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
         }
     }
 
@@ -163,10 +223,11 @@ public class CommunityService {
             } else {
                 return ""; // 拡張子がない場合
             }
-            String savePath = upload_dir + myId + "." + fileExt;
+            String saveFileName =  myId + "." + fileExt;
+            String savePath = upload_dir + saveFileName;
             File saveFile = new File(savePath);
             photo.transferTo(saveFile);
-            return savePath;
+            return saveFileName;
         } catch (IOException e) {
             logger.info("savePhoto error");
             return "";

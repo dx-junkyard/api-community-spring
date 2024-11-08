@@ -30,21 +30,7 @@
                    1
             )
     </insert>
-    <insert id="addCommunityMember">
-        insert into CommunityMembers(
-            community_id,
-            user_id,
-            role_id,
-            status,
-            fav_flg)
-        values (
-                   #{community_id},
-                   #{user_id},
-                   #{role_id},
-                   #{status},
-                   #{fav}
-               )
-    </insert>
+
     <select id="getCommunityList" resultType="com.dxjunkyard.community.domain.CommunitySummary">
         select
             id,
@@ -95,4 +81,22 @@
         where
             c.id = #{community_id}
     </select>
+    <update id="updatePhotoPath">
+        update Communities set
+            summary_image_url = #{photoPath}
+        where id = #{communityId}
+    </update>
+    <update id="updateCommunity">
+        update Communities set
+            owner_id = #{ownerId},
+            place_id = #{placeId},
+            name = #{name},
+            summary_image_url = #{summaryImageUrl},
+            summary_message = #{summaryMessage},
+            summary_pr = #{summaryPr},
+            description = #{description},
+            member_count = #{memberCount},
+            visibility = #{visibility}
+        where id = #{id}
+    </update>
 </mapper>
