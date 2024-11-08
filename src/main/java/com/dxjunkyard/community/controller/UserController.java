@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @RestController
@@ -56,6 +57,20 @@ public class UserController {
         } catch (Exception e) {
             logger.debug("user register error : " + e.getMessage());
             return ResponseEntity.badRequest().body("user register failed.");
+        }
+    }
+
+    // ユーザー登録
+    @GetMapping("/get-userid")
+    public ResponseEntity<String> getUserId(
+            @RequestHeader("Authorization") String authHeader) {
+        logger.info("user register API");
+        try {
+            String myId = authService.checkAuthHeader(authHeader);
+            return ResponseEntity.ok(Objects.requireNonNullElse(myId, ""));
+        } catch (Exception e) {
+            logger.debug("user register error : " + e.getMessage());
+            return ResponseEntity.ok("");
         }
     }
 

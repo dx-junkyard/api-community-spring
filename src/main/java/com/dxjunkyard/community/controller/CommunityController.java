@@ -20,6 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -180,6 +183,29 @@ public class CommunityController {
         }
     }
 
+    @PostMapping("/community/update")
+    public ResponseEntity<?> updateCommunity(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Community request) {
+        logger.info("create new community");
+        try {
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            // owner_idの指定がない場合は、操作中のユーザーをオーナーに指定する
+            if (request.getOwnerId() == null) {
+                request.setOwnerId(myId);
+            }
+            Community community = communityService.updateCommunityInfo(request);
+            return ResponseEntity.ok(community);
+        } catch (Exception e) {
+            logger.debug("community" + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid community info.");
+        }
+    }
+
+
     // 権限の付与/変更
     @PostMapping("/{community_id}/roles/assign")
     public ResponseEntity<String> assignRole(
@@ -309,7 +335,7 @@ public class CommunityController {
         return ResponseEntity.ok(members);
     }
 
-    @PostMapping("/community/photo/upload")
+    @PostMapping("/community/upload-image")
     public ResponseEntity<?> uploadPhoto(
             @RequestHeader("Authorization") String authHeader,
             @RequestParam("photo") MultipartFile photo

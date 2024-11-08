@@ -36,4 +36,19 @@
         WHERE community_id = #{communityId}
           AND user_id = #{userId}
     </select>
+    <insert id="addCommunityMember">
+        insert into CommunityMembers(
+            community_id,
+            user_id,
+            role_id,
+            status,
+            fav_flg)
+        values (
+                   #{community_id},
+                   #{user_id},
+                   #{role_id},
+                   #{status},
+                   #{fav}
+               )
+    </insert>
 </mapper>
