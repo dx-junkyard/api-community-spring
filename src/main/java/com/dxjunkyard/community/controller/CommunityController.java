@@ -51,10 +51,15 @@ public class CommunityController {
 
     // コミュニティリストの表示
     @GetMapping("/communitylist")
-    public ResponseEntity<?> getCommunityList() {
+    public ResponseEntity<?> getCommunityList(
+            @RequestHeader("Authorization") String authHeader) {
         try {
             logger.info("community_list");
-            List<CommunitySummary> communityList= communityService.getCommunityList();
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            List<CommunitySummary> communityList= communityService.getCommunityList(myId);
             return ResponseEntity.ok(communityList);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
@@ -103,10 +108,16 @@ public class CommunityController {
 
     // コミュニティリストの表示
     @GetMapping("/keyword-search")
-    public ResponseEntity<?> searchCommunityByKeyword(@RequestParam(value = "keyword", required = false) String keyword) {
+    public ResponseEntity<?> searchCommunityByKeyword(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(value = "keyword", required = false) String keyword) {
         try {
             logger.info("community_list");
-            List<CommunitySummary> communityList= communityService.searchCommunityByKeyword(keyword);
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            List<CommunitySummary> communityList= communityService.searchCommunityByKeyword(myId, keyword);
             return ResponseEntity.ok(communityList);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());

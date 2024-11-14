@@ -42,10 +42,10 @@ public class CommunityService {
     @Autowired
     private CommunityMemberMapper communityMemberMapper;
 
-    public List<CommunitySummary> getCommunityList() {
+    public List<CommunitySummary> getCommunityList(String myId) {
         logger.info("getCommunity List");
         try {
-            List<CommunitySummary> communityList = communityMapper.getCommunityList();
+            List<CommunitySummary> communityList = communityMapper.getCommunityList(myId);
             return communityList;
         } catch (Exception e) {
             logger.info("addCommunity error");
@@ -68,13 +68,13 @@ public class CommunityService {
     }
 
     // 公開設定になっているコミュニティをキーワード検索する
-    public List<CommunitySummary> searchCommunityByKeyword(String keyword) {
+    public List<CommunitySummary> searchCommunityByKeyword(String myId, String keyword) {
         logger.info("keyword search : community");
         try {
             // todo: keywordをサニタイズする
             // コミュニティ名・概要・PR文をキーワードで検索する
             String decodedKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8.name());
-            List<CommunitySummary> communityList = communityMapper.searchCommunity(decodedKeyword);
+            List<CommunitySummary> communityList = communityMapper.searchCommunity(myId, decodedKeyword);
             return communityList;
         } catch (Exception e) {
             logger.info("addCommunity error");
@@ -98,8 +98,8 @@ public class CommunityService {
         logger.info("getOurCommunity List");
         try {
             List<CommunitySummary> communityList= List.of(
-                    new CommunitySummary(1L,"community name", 1L,"summaryA_image_url","summaryA_message", "summaryA_pr"),
-                    new CommunitySummary(2L,"community name", 2L,"summaryB_image_url","summaryB_message", "summaryB_pr")
+                    new CommunitySummary(1L,"community name", 1L,"summaryA_image_url","summaryA_message", "summaryA_pr",1),
+                    new CommunitySummary(2L,"community name", 2L,"summaryB_image_url","summaryB_message", "summaryB_pr",1)
             );
             return communityList;
         } catch (Exception e) {
