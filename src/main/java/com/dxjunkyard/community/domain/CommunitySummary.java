@@ -17,5 +17,6 @@ public class CommunitySummary {
     private String summaryPr;
     private String summaryImageUrl;
     private String summaryMessage;
+    private Integer fav;
 }
 
