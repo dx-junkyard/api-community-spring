@@ -132,11 +132,36 @@ public class CommunityController {
             @PathVariable("community_id") Long communityId) {
         try {
             logger.info("community info");
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            // todo : check role
             CommunityPage communityPage = communityService.getCommunityPage(communityId);
             return ResponseEntity.ok(communityPage);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
+        }
+    }
+
+    // コミュニティ詳細の表示
+    @GetMapping("/{community_id}/community-name")
+    public ResponseEntity<?> getCommunityName(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable("community_id") Long communityId) {
+        try {
+            logger.info("get community name");
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            // todo check role
+            String communityName = communityService.getCommunityName(communityId);
+            return ResponseEntity.ok(communityName);
+        } catch (Exception e) {
+            logger.debug("get communityName : " + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid fields: invalid communityId or invalid token.");
         }
     }
 

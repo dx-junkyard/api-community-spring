@@ -67,6 +67,19 @@ public class CommunityService {
         }
     }
 
+    // communityIdに対応するコミュニティ名を取得する
+    public String getCommunityName(Long communityId) {
+        logger.info("getCommunityName");
+        try {
+            String communityName = communityMapper.getCommunityName(communityId);
+            return communityName;
+        } catch (Exception e) {
+            logger.info("getCommunity error");
+            logger.info("getCommunity error info : " + e.getMessage());
+            return null;
+        }
+    }
+
     // 公開設定になっているコミュニティをキーワード検索する
     public List<CommunitySummary> searchCommunityByKeyword(String myId, String keyword) {
         logger.info("keyword search : community");
