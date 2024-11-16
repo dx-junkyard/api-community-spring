@@ -93,6 +93,14 @@
         where
             c.id = #{community_id}
     </select>
+    <select id="getCommunityName" resultType="String">
+        select
+            name
+        from
+            Communities as c
+        where
+            c.id = #{community_id} LIMIT 1
+    </select>
     <update id="updatePhotoPath">
         update Communities set
             summary_image_url = #{photoPath}

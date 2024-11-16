@@ -13,6 +13,7 @@ public interface CommunityMapper {
     void updateCommunity(Community community);
     void updatePhotoPath(Long communityId, String photoPath);
     Community getCommunity(Long community_id);
+    String getCommunityName(Long community_id);
     List<CommunitySummary> getCommunityList(String myId);
     List<CommunitySummary> searchCommunity(String myId, String keyword);
     List<CommunitySelector> getMyCommunitySelector(String my_id);
