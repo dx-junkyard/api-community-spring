@@ -3,6 +3,7 @@ package com.dxjunkyard.community.controller;
 import com.dxjunkyard.community.domain.Community;
 import com.dxjunkyard.community.domain.CommunitySummary;
 import com.dxjunkyard.community.domain.request.AssignRoleRequest;
+import com.dxjunkyard.community.domain.request.CommunityNetworking;
 import com.dxjunkyard.community.domain.request.EditCommunityRequest;
 import com.dxjunkyard.community.domain.request.FavoriteRequest;
 import com.dxjunkyard.community.domain.response.*;
@@ -213,6 +214,28 @@ public class CommunityController {
             }
             Community community = communityService.createCommunityInfo(request);
             return ResponseEntity.ok(community);
+        } catch (Exception e) {
+            logger.debug("community" + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid community info.");
+        }
+    }
+
+    @PostMapping("/community/create-group")
+    public ResponseEntity<?> createGroup(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody CommunityNetworking request) {
+        logger.info("create new community");
+        try {
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            // todo : 以下を実装する
+            // owner_idの指定がない場合は、操作中のユーザーをオーナーに指定する
+            // 新規で親コミュニティを作成し、親子関係を登録する
+            // Community community = communityService.createCommunityInfo(request);
+            // 以下は仮でコミュニティID = 1を固定で返却している。
+            return ResponseEntity.ok(1L);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid community info.");
