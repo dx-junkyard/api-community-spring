@@ -29,14 +29,6 @@ import java.util.List;
 public class AuthService {
     private Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    /*
-    @Autowired
-    private TokenMapper tokenMapper;
-
-    @Autowired
-    private SnsRegisterMapper snsRegisterMapper;
-     */
-
     @Value("${encrypt.jwt.secret}")
     private String jwt_secret;
 

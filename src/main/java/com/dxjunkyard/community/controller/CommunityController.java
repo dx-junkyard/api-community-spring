@@ -230,14 +230,11 @@ public class CommunityController {
             if (myId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
             }
-            // todo : 以下を実装する
-            // owner_idの指定がない場合は、操作中のユーザーをオーナーに指定する
-            // 新規で親コミュニティを作成し、親子関係を登録する
-            // Community community = communityService.createCommunityInfo(request);
-            // 以下は仮でコミュニティID = 1を固定で返却している。
-            return ResponseEntity.ok(1L);
+            // todo : 権限チェックを実装する
+            Long parentCommunityId = communityService.createGroup(myId, request);
+            return ResponseEntity.ok(parentCommunityId);
         } catch (Exception e) {
-            logger.debug("community" + e.getMessage());
+            logger.debug("new community group" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid community info.");
         }
     }

@@ -119,4 +119,20 @@
             visibility = #{visibility}
         where id = #{id}
     </update>
+
+    <insert id="addCommunityConnection">
+        insert into CommunityConnections (
+            parent_id,
+            child_id,
+            invitation_code,
+            status,
+            expiration_at)
+        values (
+                   #{parentId},
+                   #{childId},
+                   #{code},
+                   #{status},
+                   #{expirationAt}
+               )
+    </insert>
 </mapper>

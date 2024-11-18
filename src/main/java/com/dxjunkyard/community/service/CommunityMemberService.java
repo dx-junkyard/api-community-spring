@@ -2,12 +2,10 @@ package com.dxjunkyard.community.service;
 
 import com.dxjunkyard.community.domain.CommunityMembers;
 import com.dxjunkyard.community.domain.request.FavoriteRequest;
-import com.dxjunkyard.community.repository.dao.mapper.CommunityMapper;
 import com.dxjunkyard.community.repository.dao.mapper.CommunityMemberMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 public class CommunityMemberService {
