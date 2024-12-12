@@ -69,26 +69,6 @@ public class CommunityController {
     }
 
 
-    // community_idのコミュニティ（自分が所属しているものに限る）が連携しているコミュニティリストの表示
-    @GetMapping("/{community_id}/ourcommunitylist")
-    public ResponseEntity<?> getOurCommunityList(
-            @RequestHeader("Authorization") String authHeader,
-            @PathVariable("community_id") Long communityId) {
-        try {
-            logger.info("our community list community_id: " + communityId.toString());
-            String myId = authService.checkAuthHeader(authHeader);
-            if (myId == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
-            }
-            // todo: roleチェック（myIdにcommunity_id表示の権限があるか？）
-            List<CommunitySummary> communityList= communityService.getOurCommunityList(communityId);
-            return ResponseEntity.ok(communityList);
-        } catch (Exception e) {
-            logger.debug("community" + e.getMessage());
-            return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
-        }
-    }
-
     // 自分が所属しているコミュニティリストの表示
     @GetMapping("/myhome")
     public ResponseEntity<?> getMyPageInfo(
@@ -127,8 +107,8 @@ public class CommunityController {
     }
 
     // コミュニティ詳細の表示
-    @GetMapping("/{community_id}")
-    public ResponseEntity<?> getCommunity(
+    @GetMapping("/{community_id}/page")
+    public ResponseEntity<?> getCommunityPage(
             @RequestHeader("Authorization") String authHeader,
             @PathVariable("community_id") Long communityId) {
         try {
@@ -146,7 +126,27 @@ public class CommunityController {
         }
     }
 
-    // コミュニティ詳細の表示
+    // コミュニティ登録情報の取得
+    @GetMapping("/{community_id}/registration")
+    public ResponseEntity<?> getCommunityRegistration(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable("community_id") Long communityId) {
+        try {
+            logger.info("community info");
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            // todo : check role
+            Community community = communityService.getCommunity(communityId);
+            return ResponseEntity.ok(community);
+        } catch (Exception e) {
+            logger.debug("community" + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
+        }
+    }
+
+    // コミュニティ名の取得
     @GetMapping("/{community_id}/community-name")
     public ResponseEntity<?> getCommunityName(
             @RequestHeader("Authorization") String authHeader,
@@ -178,7 +178,8 @@ public class CommunityController {
         Integer updateSuccess = communityMemberService.updateFavoriteStatus(myId, 0, favoriteRequest);
         return ResponseEntity.ok(updateSuccess);
     }
-        // コミュニティリストの表示
+
+    /*
     @PostMapping("/community/{community_id}/edit")
     public ResponseEntity<?> getMyCommunityList(
             @RequestHeader("Authorization") String authHeader,
@@ -191,6 +192,25 @@ public class CommunityController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
             }
             CommunityResponse response = communityService.editCommunityInfo(request);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.debug("community" + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid community info");
+        }
+    }
+     */
+
+    @PostMapping("/community/edit")
+    public ResponseEntity<?> postEditCommunity(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody Community request) {
+        try {
+            logger.info("my community list ");
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            Community response = communityService.editCommunity(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
@@ -230,14 +250,11 @@ public class CommunityController {
             if (myId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
             }
-            // todo : 以下を実装する
-            // owner_idの指定がない場合は、操作中のユーザーをオーナーに指定する
-            // 新規で親コミュニティを作成し、親子関係を登録する
-            // Community community = communityService.createCommunityInfo(request);
-            // 以下は仮でコミュニティID = 1を固定で返却している。
-            return ResponseEntity.ok(1L);
+            // todo : 権限チェックを実装する
+            Long parentCommunityId = communityService.createGroup(myId, request);
+            return ResponseEntity.ok(parentCommunityId);
         } catch (Exception e) {
-            logger.debug("community" + e.getMessage());
+            logger.debug("new community group" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid community info.");
         }
     }

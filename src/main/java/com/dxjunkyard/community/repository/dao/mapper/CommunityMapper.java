@@ -1,5 +1,6 @@
 package com.dxjunkyard.community.repository.dao.mapper;
 
+import com.dxjunkyard.community.domain.CommunityConnection;
 import com.dxjunkyard.community.domain.CommunitySelector;
 import com.dxjunkyard.community.domain.CommunitySummary;
 import org.apache.ibatis.annotations.Mapper;
@@ -10,6 +11,7 @@ import java.util.List;
 @Mapper
 public interface CommunityMapper {
     void addCommunity(Community community);
+    void addCommunityConnection(CommunityConnection connection);
     void updateCommunity(Community community);
     void updatePhotoPath(Long communityId, String photoPath);
     Community getCommunity(Long community_id);

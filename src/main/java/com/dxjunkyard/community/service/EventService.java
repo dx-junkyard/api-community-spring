@@ -1,9 +1,7 @@
 package com.dxjunkyard.community.service;
 
-import com.dxjunkyard.community.domain.EventSummary;
 import com.dxjunkyard.community.domain.Events;
 import com.dxjunkyard.community.domain.dto.EventDto;
-import com.dxjunkyard.community.domain.request.AddEventRequest;
 import com.dxjunkyard.community.domain.response.EventPage;
 import com.dxjunkyard.community.repository.dao.mapper.EventMapper;
 import org.slf4j.Logger;

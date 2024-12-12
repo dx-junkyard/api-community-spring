@@ -1,8 +1,8 @@
 package com.dxjunkyard.community.service;
 
 import com.dxjunkyard.community.domain.*;
+import com.dxjunkyard.community.domain.request.CommunityNetworking;
 import com.dxjunkyard.community.domain.request.EditCommunityRequest;
-import com.dxjunkyard.community.domain.request.NewCommunityRequest;
 import com.dxjunkyard.community.domain.response.CommunityPage;
 import com.dxjunkyard.community.domain.response.CommunityResponse;
 import com.dxjunkyard.community.domain.response.MyPage;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -21,6 +20,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static com.google.common.io.Files.getFileExtension;
@@ -71,8 +71,7 @@ public class CommunityService {
     public String getCommunityName(Long communityId) {
         logger.info("getCommunityName");
         try {
-            String communityName = communityMapper.getCommunityName(communityId);
-            return communityName;
+            return communityMapper.getCommunityName(communityId);
         } catch (Exception e) {
             logger.info("getCommunity error");
             logger.info("getCommunity error info : " + e.getMessage());
@@ -134,10 +133,40 @@ public class CommunityService {
         }
     }
 
-    public CommunityResponse editCommunityInfo(EditCommunityRequest request) {
-        logger.info("getCommunity List");
+    public Community editCommunity(Community updates) {
+        logger.info("createCommunity");
         try {
-            return null;
+            Long id = updates.getId();
+            Community original = communityMapper.getCommunity(id);
+
+            if (updates.getPlaceId() != null) {
+                original.setPlaceId(updates.getPlaceId());
+            }
+            if (updates.getName() != null) {
+                original.setName(updates.getName());
+            }
+            if (updates.getSummaryMessage() != null) {
+                original.setSummaryMessage(updates.getSummaryMessage());
+            }
+            if (updates.getSummaryPr() != null) {
+                original.setSummaryPr(updates.getSummaryPr());
+            }
+            if (updates.getDescription() != null) {
+                original.setDescription(updates.getDescription());
+            }
+            if (updates.getProfileImageUrl() != null) {
+                original.setProfileImageUrl(updates.getProfileImageUrl());
+            }
+            if (updates.getMemberCount() != null) {
+                original.setMemberCount(updates.getMemberCount());
+            }
+            if (updates.getVisibility() != null) {
+                original.setVisibility(updates.getVisibility());
+            }
+
+            // コミュニティ情報更新
+            communityMapper.updateCommunity(original);
+            return original;
         } catch (Exception e) {
             logger.info("addCommunity error");
             logger.info("addCommunity error info : " + e.getMessage());
@@ -153,7 +182,6 @@ public class CommunityService {
                     .ownerId(request.getOwnerId())
                     .placeId(request.getPlaceId())
                     .name(request.getName())
-                    .summaryImageUrl(request.getSummaryImageUrl())
                     .summaryMessage(request.getSummaryMessage())
                     .summaryPr(request.getSummaryPr())
                     .description(request.getDescription())
@@ -186,6 +214,82 @@ public class CommunityService {
         }
     }
 
+    /*
+     * コミュニティの連携
+     *   1. 親コミュニティの登録情報を仮で作成して登録する（必要があればユーザーが後で修正）
+     * 　2. 親と子のコミュニティの紐づけを行う
+     */
+    public Long createGroup(String myId, CommunityNetworking request) {
+        logger.info("createCommunity");
+        try {
+            // 作成者のコミュニティID・コミュニティ名をグループに入れる
+            request.getPartnerCommunityId().add(request.getMyCommunityId());
+            request.getPartnerCommunityName().add(request.getMyCommunityName());
+
+            // 親コミュニティ名を仮で入れる
+            if (request.getPartnerCommunityName() == null || request.getPartnerCommunityName().isEmpty()) {
+                return -1L; // partnerCommunityNameがnullまたは空の場合、空文字を返す
+            }
+            String newName = String.join(",", request.getPartnerCommunityName()) + "　の親コミュニティ";
+
+            // 新規で親コミュニティを作成
+            Community community = Community.builder()
+                    .ownerId(myId)                      // 操作中のユーザーをオーナーに指定する
+                    //.placeId(request.getPlaceId())
+                    .name(newName)
+                    //.profileImageUrl(request.getSummaryImageUrl())
+                    .summaryMessage(newName + "として活動します。")
+                    .summaryPr("PR")
+                    .description(newName + "として活動します。")
+                    .profileImageUrl("")
+                    .memberCount(1)
+                    .visibility(1)
+                    .build();
+            communityMapper.addCommunity(community);
+            // 作成した親コミュニティメンバーとしてコミュニティ作成者を追加する
+            communityMemberMapper.addCommunityMember(community.getId(),community.getOwnerId(),100,1,1);
+
+            // 親コミュニティIDを取得
+            Long parentCommunityId =  community.getId();
+
+            // コミュニティへの招待コードを作成
+            String randomCode = InviteCodeGenerator.generateInviteCode(6);
+            // 生成したコードが既に使用されていないことを確認する
+
+            // 有効期限の設定
+            LocalDateTime thirtyDaysLater = LocalDateTime.now()
+                    .plusDays(30)
+                    .withHour(0)
+                    .withMinute(0)
+                    .withSecond(0)
+                    .withNano(0);
+            // MySQL用のフォーマット (YYYY-MM-DD HH:mm:ss)
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedDate = thirtyDaysLater.format(formatter);
+
+            // 新規作成したコミュニティを親、パートナーコミュニティを子に設定する
+            for (Long childId : request.getPartnerCommunityId()) {
+                CommunityConnection connection = CommunityConnection.builder()
+                        .parentId(parentCommunityId)
+                        .childId(childId)
+                        .expirationAt(null)
+                        .code(randomCode)
+                        .expirationAt(formattedDate)
+                        .status(1L)
+                        .build();
+                communityMapper.addCommunityConnection(connection);
+            }
+            return parentCommunityId;
+        } catch (Exception e) {
+            logger.info("addCommunity error");
+            logger.info("addCommunity error info : " + e.getMessage());
+            return null;
+        }
+    }
+
+    /*
+     * 指定のユーザーidで始まるファイル名を探す
+     */
     private Optional<File> findFileWithId(String myId) {
         File directory = new File(upload_dir);
         if (directory.exists() && directory.isDirectory()) {
@@ -197,6 +301,9 @@ public class CommunityService {
         return Optional.empty();
     }
 
+    /*
+     *
+     */
     public String renamePhoto(String myId, Long communityId) {
         try {
             // ディレクトリ内で myId に一致するファイルを探す
@@ -404,7 +511,7 @@ public class CommunityService {
                     .description(com.getDescription())
                     .name(com.getName())
                     .location(getLocationInfo(com.getPlaceId()))
-                    .summaryImageUrl(com.getSummaryImageUrl())
+                    .profileImageUrl(com.getProfileImageUrl())
                     .visibility(com.getVisibility())
                     .activityHistoryList(getMockActivityHistoryList())
                     .eventScheduleList(getMockScheduleList())

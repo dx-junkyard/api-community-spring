@@ -8,7 +8,6 @@
                                 owner_id,
                                 place_id,
                                 name,
-                                summary_image_url,
                                 summary_message,
                                 summary_pr,
                                 description,
@@ -20,12 +19,11 @@
                    #{ownerId},
                    #{placeId},
                    #{name},
-                   #{summaryImageUrl},
                    #{summaryMessage},
                    #{summaryPr},
                    #{description},
                    #{profileImageUrl},
-                   1,
+                   #{memberCount},
                    #{visibility},
                    1
             )
@@ -35,7 +33,7 @@
         select
             c.id,
             c.name,
-            c.summary_image_url as summaryImageUrl ,
+            c.profile_image_url as profileImageUrl ,
             c.summary_message as summaryMessage,
             c.summary_pr as summaryPr,
             COALESCE(
@@ -51,7 +49,7 @@
         select
             c.id,
             c.name,
-            c.summary_image_url as summaryImageUrl ,
+            c.profile_image_url as profileImageUrl ,
             c.summary_message as summaryMessage,
             c.summary_pr as summaryPr,
             COALESCE(
@@ -82,16 +80,16 @@
             owner_id as ownerId,
             place_id as placeId,
             name,
-            summary_image_url as summaryImageUrl ,
+            profile_image_url as profileImageUrl ,
             summary_message as summaryMessage,
             summary_pr as summaryPr,
             description,
             member_count as memberCount,
             visibility as visibility
         from
-            Communities as c
+            Communities
         where
-            c.id = #{community_id}
+            id = #{community_id}
     </select>
     <select id="getCommunityName" resultType="String">
         select
@@ -103,7 +101,7 @@
     </select>
     <update id="updatePhotoPath">
         update Communities set
-            summary_image_url = #{photoPath}
+            profile_image_url = #{photoPath}
         where id = #{communityId}
     </update>
     <update id="updateCommunity">
@@ -111,7 +109,7 @@
             owner_id = #{ownerId},
             place_id = #{placeId},
             name = #{name},
-            summary_image_url = #{summaryImageUrl},
+            profile_image_url = #{profileImageUrl},
             summary_message = #{summaryMessage},
             summary_pr = #{summaryPr},
             description = #{description},
@@ -119,4 +117,20 @@
             visibility = #{visibility}
         where id = #{id}
     </update>
+
+    <insert id="addCommunityConnection">
+        insert into CommunityConnections (
+            parent_id,
+            child_id,
+            invitation_code,
+            status,
+            expiration_at)
+        values (
+                   #{parentId},
+                   #{childId},
+                   #{code},
+                   #{status},
+                   #{expirationAt}
+               )
+    </insert>
 </mapper>
