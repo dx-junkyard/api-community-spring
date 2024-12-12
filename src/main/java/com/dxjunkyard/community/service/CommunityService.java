@@ -133,10 +133,40 @@ public class CommunityService {
         }
     }
 
-    public CommunityResponse editCommunityInfo(EditCommunityRequest request) {
-        logger.info("getCommunity List");
+    public Community editCommunity(Community updates) {
+        logger.info("createCommunity");
         try {
-            return null;
+            Long id = updates.getId();
+            Community original = communityMapper.getCommunity(id);
+
+            if (updates.getPlaceId() != null) {
+                original.setPlaceId(updates.getPlaceId());
+            }
+            if (updates.getName() != null) {
+                original.setName(updates.getName());
+            }
+            if (updates.getSummaryMessage() != null) {
+                original.setSummaryMessage(updates.getSummaryMessage());
+            }
+            if (updates.getSummaryPr() != null) {
+                original.setSummaryPr(updates.getSummaryPr());
+            }
+            if (updates.getDescription() != null) {
+                original.setDescription(updates.getDescription());
+            }
+            if (updates.getProfileImageUrl() != null) {
+                original.setProfileImageUrl(updates.getProfileImageUrl());
+            }
+            if (updates.getMemberCount() != null) {
+                original.setMemberCount(updates.getMemberCount());
+            }
+            if (updates.getVisibility() != null) {
+                original.setVisibility(updates.getVisibility());
+            }
+
+            // コミュニティ情報更新
+            communityMapper.updateCommunity(original);
+            return original;
         } catch (Exception e) {
             logger.info("addCommunity error");
             logger.info("addCommunity error info : " + e.getMessage());
@@ -152,7 +182,6 @@ public class CommunityService {
                     .ownerId(request.getOwnerId())
                     .placeId(request.getPlaceId())
                     .name(request.getName())
-                    .summaryImageUrl(request.getSummaryImageUrl())
                     .summaryMessage(request.getSummaryMessage())
                     .summaryPr(request.getSummaryPr())
                     .description(request.getDescription())
@@ -185,6 +214,11 @@ public class CommunityService {
         }
     }
 
+    /*
+     * コミュニティの連携
+     *   1. 親コミュニティの登録情報を仮で作成して登録する（必要があればユーザーが後で修正）
+     * 　2. 親と子のコミュニティの紐づけを行う
+     */
     public Long createGroup(String myId, CommunityNetworking request) {
         logger.info("createCommunity");
         try {
@@ -203,7 +237,7 @@ public class CommunityService {
                     .ownerId(myId)                      // 操作中のユーザーをオーナーに指定する
                     //.placeId(request.getPlaceId())
                     .name(newName)
-                    //.summaryImageUrl(request.getSummaryImageUrl())
+                    //.profileImageUrl(request.getSummaryImageUrl())
                     .summaryMessage(newName + "として活動します。")
                     .summaryPr("PR")
                     .description(newName + "として活動します。")
@@ -253,6 +287,9 @@ public class CommunityService {
         }
     }
 
+    /*
+     * 指定のユーザーidで始まるファイル名を探す
+     */
     private Optional<File> findFileWithId(String myId) {
         File directory = new File(upload_dir);
         if (directory.exists() && directory.isDirectory()) {
@@ -264,6 +301,9 @@ public class CommunityService {
         return Optional.empty();
     }
 
+    /*
+     *
+     */
     public String renamePhoto(String myId, Long communityId) {
         try {
             // ディレクトリ内で myId に一致するファイルを探す
@@ -471,7 +511,7 @@ public class CommunityService {
                     .description(com.getDescription())
                     .name(com.getName())
                     .location(getLocationInfo(com.getPlaceId()))
-                    .summaryImageUrl(com.getSummaryImageUrl())
+                    .profileImageUrl(com.getProfileImageUrl())
                     .visibility(com.getVisibility())
                     .activityHistoryList(getMockActivityHistoryList())
                     .eventScheduleList(getMockScheduleList())

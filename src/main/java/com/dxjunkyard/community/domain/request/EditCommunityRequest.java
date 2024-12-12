@@ -14,7 +14,6 @@ public class EditCommunityRequest {
     private String ownerId;
     private Long placeId;
     private String name;
-    private String summaryImageUrl;
     private String summaryMessage;
     private String summaryPr;
     private String description;
