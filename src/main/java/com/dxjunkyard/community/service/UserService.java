@@ -55,7 +55,7 @@ public class UserService {
         userMapper.registerUserProperty(
                 UserProperty.builder()
                         .user_id(uuid.toString())
-                        .line_id("")
+                        .line_id("dummy-" + uuid.toString())
                         .email(request.getEmail())
                         .password(passwordEncoder.encode(request.getPassword()))
                         .name(request.getName())

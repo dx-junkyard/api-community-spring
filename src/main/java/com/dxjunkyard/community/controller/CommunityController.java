@@ -1,6 +1,7 @@
 package com.dxjunkyard.community.controller;
 
 import com.dxjunkyard.community.domain.Community;
+import com.dxjunkyard.community.domain.CommunityMemberList;
 import com.dxjunkyard.community.domain.CommunitySummary;
 import com.dxjunkyard.community.domain.request.AssignRoleRequest;
 import com.dxjunkyard.community.domain.request.CommunityNetworking;
@@ -27,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -120,6 +122,53 @@ public class CommunityController {
             // todo : check role
             CommunityPage communityPage = communityService.getCommunityPage(communityId);
             return ResponseEntity.ok(communityPage);
+        } catch (Exception e) {
+            logger.debug("community" + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
+        }
+    }
+
+    // 招待コードをつかったコミュニティへの仮登録
+    @GetMapping("/{invitation_code}/invitation")
+    public ResponseEntity<?> useInvitation(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable("invitation_code") String invitation_code) {
+        try {
+            logger.info("use invitationCode");
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+            // todo : check role
+            // メンバーを仮登録
+            Long communityId = communityService.useInvitationCode(myId, invitation_code);
+            return ResponseEntity.ok(communityId);
+        } catch (Exception e) {
+            logger.debug("community" + e.getMessage());
+            return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
+        }
+    }
+
+    // 招待コードをつかったコミュニティへの仮登録
+    @GetMapping("/invitation/create")
+    public ResponseEntity<String> createInvitationCode(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(value="community_id") Long communityId,
+            @RequestParam(value="event_id", required = false) Long eventId,
+            @RequestParam(value="max_uses", defaultValue = "1") Integer maxUses,
+            @RequestParam(value="expiration_at", defaultValue = "9999-12-31 23:59:59") Timestamp expirationAt
+    ) {
+        try {
+            logger.info("create invitationCode");
+            String myId = authService.checkAuthHeader(authHeader);
+            if (myId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Auth fail.");
+            }
+
+            // todo : check role
+            // Timestamp expirationAt = Timestamp.valueOf("9999-12-31 23:59:59");
+            String invitationCode = communityService.createInvitationCode(communityId, eventId, maxUses, expirationAt);
+            return ResponseEntity.ok(invitationCode);
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
@@ -392,6 +441,19 @@ public class CommunityController {
             return ResponseEntity.badRequest().body("auth failed.");
         }
         return ResponseEntity.ok("succeed");
+    }
+
+    // メンバーリストの取得
+    @GetMapping("/my-community-list")
+    public ResponseEntity<?> getMyCommunityList(
+            @RequestHeader("Authorization") String authHeader) {
+        String myId= authService.checkAuthHeader(authHeader);
+        if (myId == null) {
+            return ResponseEntity.badRequest().body("auth failed.");
+        }
+        // メンバーリストを取得するロジック
+        List<CommunityMemberList> communityMemberList = communityService.getCommunityMemberList(myId);
+        return ResponseEntity.ok(communityMemberList);
     }
 
     // メンバーリストの取得

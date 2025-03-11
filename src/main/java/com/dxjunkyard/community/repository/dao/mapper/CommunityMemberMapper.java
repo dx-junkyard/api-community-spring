@@ -9,5 +9,6 @@ import java.util.List;
 public interface CommunityMemberMapper {
     void insertOrUpdateCommunityMember(CommunityMembers member);
     List<CommunityMembers> selectCommunityMember(Long communityId, String userId);
+    //List<String > getMemberNameList(Long communityId);
     void addCommunityMember(Long community_id, String user_id, Integer role_id, Integer status, Integer fav);
 }
