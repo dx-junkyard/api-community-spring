@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dxjunkyard.community.repository.dao.mapper.EquipmentMapper">
+    <insert id="reserve" useGeneratedKeys="true" keyProperty="id">
+        insert into EquipmentReservation(
+                            equipment_id
+                          ,event_id
+                          ,renter_id
+                          ,equipment_n
+                          ,start_date
+                          ,end_date
+                          ,usage_date
+                          ,comment
+                          ,status)
+        values(
+                #{equipmentId}
+              ,#{eventId}
+              ,#{renterId}
+              ,#{equipmentN}
+              ,#{startDate}
+              ,#{endDate}
+              ,#{usageDate}
+              ,#{comment}
+              ,#{status})
+    </insert>
+</mapper>
