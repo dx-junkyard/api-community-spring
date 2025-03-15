@@ -1,13 +1,17 @@
 package com.dxjunkyard.community.service;
 
 import com.dxjunkyard.community.domain.*;
+import com.dxjunkyard.community.domain.dto.EventDto;
 import com.dxjunkyard.community.domain.request.CommunityNetworking;
 import com.dxjunkyard.community.domain.request.EditCommunityRequest;
 import com.dxjunkyard.community.domain.response.CommunityPage;
 import com.dxjunkyard.community.domain.response.CommunityResponse;
+import com.dxjunkyard.community.domain.response.EventPage;
 import com.dxjunkyard.community.domain.response.MyPage;
 import com.dxjunkyard.community.repository.dao.mapper.CommunityMapper;
 import com.dxjunkyard.community.repository.dao.mapper.CommunityMemberMapper;
+import com.dxjunkyard.community.repository.dao.mapper.EventMapper;
+import com.dxjunkyard.community.repository.dao.mapper.InvitationMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +23,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.google.common.io.Files.getFileExtension;
 
@@ -41,6 +48,73 @@ public class CommunityService {
 
     @Autowired
     private CommunityMemberMapper communityMemberMapper;
+
+    @Autowired
+    private CommunityMemberService communityMemberService;
+
+    @Autowired
+    InvitationMapper invitationMapper;
+    @Autowired
+    private EventMapper eventMapper;
+
+
+    public  Long useInvitationCode(String myId, String invitationCode) {
+        // invitationCodeからcommunityIdを取得
+        try {
+            Invitations invitation = invitationMapper.getInvitation(invitationCode);
+            // 日付チェックも入れる
+            if (invitation.getRemainingUses() >= 0) {
+                Long communityId = invitation.getCommunityId();
+                communityMemberMapper.addCommunityMember(communityId, myId, 100, 1, 1);
+                return communityId;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public String generateRandomString(int length) {
+        String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomIndex = random.nextInt(CHARACTERS.length());
+            sb.append(CHARACTERS.charAt(randomIndex));
+        }
+        return sb.toString();
+    }
+
+    private String newInvitationCode() {
+        int length = 16; // 生成するランダムな文字列の長さ
+        while (true) {
+            String newCode = generateRandomString(length);
+            // 重複チェック
+            Invitations invitations = invitationMapper.getInvitation(newCode);
+            // newCodeが利用されていない場合は生成値として返却、利用されている場合は再度生成する
+            if (invitations == null) {
+                return newCode;
+            }
+        }
+    }
+
+    public String createInvitationCode(Long communityId, Long  eventId, Integer maxUses, Timestamp expirationAt) {
+        try {
+            String invitationCode = newInvitationCode();
+            Invitations invitations = Invitations.builder()
+                    .communityId(communityId)
+                    .eventId(eventId)
+                    .remainingUses(maxUses)
+                    .invitationCode(invitationCode)
+                    .expirationAt(expirationAt)
+                    .build();
+            invitationMapper.createInvitation(invitations);
+            return invitationCode;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     public List<CommunitySummary> getCommunityList(String myId) {
         logger.info("getCommunity List");
@@ -191,8 +265,6 @@ public class CommunityService {
                     .build();
             communityMapper.addCommunity(community);
             communityMemberMapper.addCommunityMember(community.getId(),community.getOwnerId(),100,1,1);
-            // String imagePath = image_dir + renamePhoto(community.getOwnerId(), community.getId());
-            // communityMapper.updatePhotoPath(community.getId(), imagePath);
             return community;
         } catch (Exception e) {
             logger.info("addCommunity error");
@@ -354,6 +426,21 @@ public class CommunityService {
         }
     }
 
+    public List<CommunityMemberList> getCommunityMemberList(String myId) {
+        List<CommunitySummary> communityList = communityMapper.getCommunityList(myId);
+        List<CommunityMemberList> memberList = new ArrayList<>();
+
+        for (CommunitySummary summary : communityList) {
+            CommunityMemberList community = new CommunityMemberList();
+            community.setId(String.valueOf(summary.getId()));  // CommunitySummaryのid(Long)を文字列に変換して設定
+            community.setName(summary.getName());              // CommunitySummaryのnameを設定
+            List<String> nameList = communityMemberService.getMemberNameList(summary.getId());
+            community.setMemberList(nameList);        //
+            memberList.add(community);
+        }
+
+        return memberList;
+    }
     private List<CommunitySelector> mockCommunitySelectorList() {
         CommunitySelector selector_a = CommunitySelector.builder()
                 .communityId(1L)
@@ -395,6 +482,22 @@ public class CommunityService {
         upcommingEventList.add(event_a);
         upcommingEventList.add(event_b);
         return upcommingEventList;
+    }
+
+    private List<UpcommingEvent> upcommingEventList(Long communityId) {
+        try {
+            List<Long> communityIdList = new ArrayList<Long>();
+            communityIdList.add(communityId);
+            List<UpcommingEvent> upcommingEventList = eventMapper.getUpCommingEventList(communityIdList);
+            //List<Events> eventList = eventMapper.getUpCommingEventList(communityIdList);
+            //List<UpcommingEvent> upcommingEventList = eventList.stream()
+            //        .map(EventDto::upcommingEvent)
+            //        .collect(Collectors.toList());
+            return upcommingEventList;
+        } catch (Exception e) {
+            logger.info("addEvent error info : " + e.getMessage());
+            return new ArrayList<UpcommingEvent>();
+        }
     }
 
     private List<EventInvitation> mockEventInvitationList() {

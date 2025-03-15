@@ -2,6 +2,7 @@ package com.dxjunkyard.community.domain.dto;
 
 
 import com.dxjunkyard.community.domain.Events;
+import com.dxjunkyard.community.domain.UpcommingEvent;
 import com.dxjunkyard.community.domain.request.AddEventRequest;
 import com.dxjunkyard.community.domain.response.EventPage;
 import org.slf4j.Logger;
@@ -12,6 +13,17 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class EventDto {
+    public static UpcommingEvent upcommingEvent(Events event) {
+        UpcommingEvent upcommingEvent = UpcommingEvent.builder()
+                .eventId(event.getId())
+                .eventName(event.getTitle())
+                //.dateTime(event.getEventStart())
+                //.communityName(event.getCommunityId())
+                .location(null) // event.getPlaceID()
+                .build();
+        return upcommingEvent;
+    }
+
     public static EventPage eventPage(Events event) {
         EventPage eventPage = EventPage.builder()
                 .id(event.getId())

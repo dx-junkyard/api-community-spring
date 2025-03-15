@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dxjunkyard.community.repository.dao.mapper.InvitationMapper">
+    <!-- Insert or Update CommunityMember -->
+    <insert id="createInvitation">
+        INSERT INTO Invitations (
+            community_id,
+            event_id,
+            remaining_uses,
+            invitation_code,
+            expiration_at
+        )
+        VALUES (
+                   #{communityId},
+                   #{eventId},
+                   #{remainingUses},
+                   #{invitationCode},
+                   #{expirationAt}
+               )
+    </insert>
+    <!-- Select CommunityMember by communityId and userId -->
+    <select id="getInvitation" resultType="com.dxjunkyard.community.domain.Invitations">
+        SELECT
+             community_id as communityId
+            ,event_id as eventId
+            ,invitation_code as invitationCode
+            ,remaining_uses as remainingUses
+            ,expiration_at as expirationAt
+        FROM Invitations
+        WHERE invitation_code = #{invitaitonCode}
+    </select>
+    <update id="decreaseInvitationCount">
+        UPDATE  Invitations SET
+            remaining_uses = remaining_uses - 1
+        WHERE invitation_code = #{invitaitonCode}
+    </update>
+    <update id="updateExpirationDate">
+        UPDATE  Invitations SET
+            expiration_at = #{expirationAt}
+        WHERE invitation_code = #{invitaitonCode}
+    </update>
+</mapper>
