@@ -1,5 +1,7 @@
 package com.dxjunkyard.community.controller;
 
+import com.dxjunkyard.community.domain.dto.ClosureScheduleDTO;
+import com.dxjunkyard.community.domain.dto.ReservationDTO;
 import com.dxjunkyard.community.domain.request.EquipmentReservationRequest;
 import com.dxjunkyard.community.domain.request.FacilityReservationRequest;
 import com.dxjunkyard.community.service.AuthService;
@@ -13,9 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-//public class FacilityController {
 @RestController
 @RequestMapping("/v1/api")
 @Slf4j
@@ -67,7 +70,159 @@ public class ReservationController {
             return ResponseEntity.badRequest().body("facility-reserve error.");
         }
     }
+    /**
+     * 機器予約情報取得 API
+     * @param equipmentId 機器ID
+     * @param startDate 開始日
+     * @param endDate 終了日
+     * @return 予約情報リスト
+     */
+    @GetMapping("/equipment/{equipmentId}/closures")
+    @ResponseBody
+    public ResponseEntity<List<ClosureScheduleDTO>> getEquipmentClosures(
+            @PathVariable String equipmentId,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
 
+        logger.info("備品予約窓口情報取得 API - equipmentId: {}, 期間: {} から {}", equipmentId, startDate, endDate);
+        try {
+            // TODO: 日付のバリデーション
+
+            // TODO: equipmentRentalServiceで予約情報を取得する処理を実装
+            List<ClosureScheduleDTO> schedules = new ArrayList<>();
+
+            // 例として、サービスから取得したデータをDTOに変換する処理
+            schedules.add(
+                ClosureScheduleDTO.builder()
+                    .day(1)  // 月曜日
+                    .date("2024-05-05")
+                    .startTime("00:00")
+                    .endTime("08:00")
+                    .eventText("予約不可: " + equipmentId)
+                    .build()
+            );
+
+            return ResponseEntity.ok(schedules);
+        } catch (Exception e) {
+            logger.error("機器予約情報取得エラー", e);
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    /**
+     * 備品予約情報取得 API
+     * @param equipmentId 備品ID
+     * @param startDate 開始日
+     * @param endDate 終了日
+     * @return 予約情報リスト
+     */
+    @GetMapping("/equipment/{equipmentId}/reservations")
+    @ResponseBody
+    public ResponseEntity<List<ReservationDTO>> getEquipmentReservations(
+            @PathVariable String equipmentId,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+
+        logger.info("備品予約情報取得 API - equipmentId: {}, 期間: {} から {}", equipmentId, startDate, endDate);
+        try {
+            // TODO: 日付のバリデーション
+
+            // TODO: equipmentRentalServiceで予約情報を取得する処理を実装
+            List<ReservationDTO> schedules = new ArrayList<>();
+
+            // 例として、サービスから取得したデータをDTOに変換する処理
+            schedules.add(
+                ReservationDTO.builder()
+                    .day(1)  // 月曜日
+                    .date("2024-05-05")
+                    .startTime("09:00")
+                    .endTime("17:00")
+                    .eventText("備品予約: " + equipmentId)
+                    .build()
+            );
+
+            return ResponseEntity.ok(schedules);
+        } catch (Exception e) {
+            logger.error("備品予約情報取得エラー", e);
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    /**
+     * 設備予約情報取得 API
+     * @param facilityId 設備ID
+     * @param startDate 開始日
+     * @param endDate 終了日
+     * @return 予約情報リスト
+     */
+    @GetMapping("/facility/{facilityId}/closures")
+    @ResponseBody
+    public ResponseEntity<List<ClosureScheduleDTO>> getFacilityClosures(
+            @PathVariable String facilityId,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+
+        logger.info("設備予約窓口情報取得 API - facilityId: {}, 期間: {} から {}", facilityId, startDate, endDate);
+        try {
+            // TODO: 日付のバリデーション
+
+            // TODO: equipmentRentalServiceで予約情報を取得する処理を実装
+            List<ClosureScheduleDTO> schedules = new ArrayList<>();
+
+            // 例として、サービスから取得したデータをDTOに変換する処理
+            schedules.add(
+                    ClosureScheduleDTO.builder()
+                            .day(1)  // 月曜日
+                            .date("2024-05-05")
+                            .startTime("00:00")
+                            .endTime("08:00")
+                            .eventText("予約不可: " + facilityId)
+                            .build()
+            );
+
+            return ResponseEntity.ok(schedules);
+        } catch (Exception e) {
+            logger.error("機器予約情報取得エラー", e);
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    /**
+     * 設備予約情報取得 API
+     * @param facilityId 設備ID
+     * @param startDate 開始日
+     * @param endDate 終了日
+     * @return 予約情報リスト
+     */
+    @GetMapping("/facility/{facilityId}/reservations")
+    @ResponseBody
+    public ResponseEntity<List<ReservationDTO>> getFacilityReservations(
+            @PathVariable String facilityId,
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate) {
+
+        logger.info("設備予約情報取得 API - facilityId: {}, 期間: {} から {}", facilityId, startDate, endDate);
+        try {
+            // TODO: 日付のバリデーション
+
+            // TODO: equipmentRentalServiceで予約情報を取得する処理を実装
+            List<ReservationDTO> schedules = new ArrayList<>();
+
+            // 例として、サービスから取得したデータをDTOに変換する処理
+            schedules.add(
+                    ReservationDTO.builder()
+                            .day(1)  // 月曜日
+                            .date("2024-05-05")
+                            .startTime("09:00")
+                            .endTime("17:00")
+                            .eventText("設備予約: " + facilityId)
+                            .build()
+            );
+
+            return ResponseEntity.ok(schedules);
+        } catch (Exception e) {
+            logger.error("機器予約情報取得エラー", e);
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
     /**
      *
      */
