@@ -4,19 +4,19 @@
 ### ユーザー登録
 ```
 # 新規ユーザーを登録します(userA)
-curl -XPOST -H "Content-Type: application/json" 'http://localhost:8080/v1/api/users/register' -d'{"name":"test userA", "email":"userA@spocomi.co.jp", "password":"pass"}'
+curl -XPOST -H "Content-Type: application/json" 'http://localhost:8080/v1/api/users/register' -d'{"name":"test userA", "email":"example-userA@example.com", "password":"pass"}'
 
 # ユーザーをもう一人追加します(userB)
-curl -XPOST -H "Content-Type: application/json" 'http://localhost:8080/v1/api/users/register' -d'{"name":"test userB", "email":"userB@spocomi.co.jp", "password":"pass"}'
+curl -XPOST -H "Content-Type: application/json" 'http://localhost:8080/v1/api/users/register' -d'{"name":"test userB", "email":"example-userB@example.com", "password":"pass"}'
 ```
 
 ### login
 ```
 # userAでloginしてtokenを取得します
-tokenA=`curl -XGET -H "Content-Type: application/json" 'http://localhost:8080/v1/api/users/login' -d'{"email":"userA@spocomi.co.jp", "password":"pass"}'`
+tokenA=`curl -XGET -H "Content-Type: application/json" 'http://localhost:8080/v1/api/users/login' -d'{"email":"example-userA@example.com", "password":"pass"}'`
 
 # userBでloginしてtokenを取得します
-tokenB=`curl -XGET -H "Content-Type: application/json" 'http://localhost:8080/v1/api/users/login' -d'{"email":"userB@spocomi.co.jp", "password":"pass"}'`
+tokenB=`curl -XGET -H "Content-Type: application/json" 'http://localhost:8080/v1/api/users/login' -d'{"email":"example-userB@example.com", "password":"pass"}'`
 ```
 
 
