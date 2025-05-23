@@ -2,11 +2,13 @@ package com.dxjunkyard.community.controller;
 
 import com.dxjunkyard.community.domain.dto.ClosureScheduleDTO;
 import com.dxjunkyard.community.domain.dto.ReservationDTO;
+import com.dxjunkyard.community.domain.request.CombinedReservationRequest;
 import com.dxjunkyard.community.domain.request.EquipmentReservationRequest;
 import com.dxjunkyard.community.domain.request.FacilityReservationRequest;
 import com.dxjunkyard.community.service.AuthService;
 import com.dxjunkyard.community.service.EquipmentRentalService;
 import com.dxjunkyard.community.service.FacilityRentalService;
+import com.dxjunkyard.community.service.ReservationService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,9 @@ public class ReservationController {
 
     @Autowired
     private AuthService authService;
+    
+    @Autowired
+    private ReservationService reservationService;
     /**
      *
      */
@@ -300,4 +305,27 @@ public class ReservationController {
         return ResponseEntity.ok("ok");
     }
 
+    /**
+     * 統合予約エンドポイント - 設備と備品の両方を予約
+     */
+    @PostMapping("/community/reservation/new")
+    @ResponseBody
+    public ResponseEntity<?> makeCombinedReservation(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody CombinedReservationRequest request) {
+        logger.info("統合予約 API");
+        try {
+            String userId = authService.checkAuthHeader(authHeader);
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
+            }
+
+            reservationService.reserveCombined(request, userId);
+
+            return ResponseEntity.ok("ok");
+        } catch (Exception e) {
+            logger.error("統合予約エラー", e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Reservation failed: " + e.getMessage()));
+        }
+    }
 }

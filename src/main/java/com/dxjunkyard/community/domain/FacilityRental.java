@@ -23,4 +23,5 @@ public class FacilityRental {
     private LocalDateTime startDate; // 貸出開始
     private LocalDateTime endDate; //　貸出終了
     private String comment; // コメント
+    private Integer status; // 予約ステータス
 }

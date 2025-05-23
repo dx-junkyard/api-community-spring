@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dxjunkyard.community.repository.dao.mapper.FacilityMapper">
+    <insert id="reserve" parameterType="com.dxjunkyard.community.domain.FacilityRental" useGeneratedKeys="true" keyProperty="reservationId">
+        insert into FacilityReservations(
+                            facility_id
+                          ,event_id
+                          ,renter_id
+                          ,start_date
+                          ,end_date
+                          ,comment
+                          ,status)
+        values(
+                #{facilityId}
+              ,#{eventId}
+              ,#{renterId}
+              ,#{startDate}
+              ,#{endDate}
+              ,#{comment}
+              ,#{status})
+    </insert>
+</mapper>
