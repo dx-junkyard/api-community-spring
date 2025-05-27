@@ -130,21 +130,11 @@ public class ReservationController {
 
         logger.info("備品予約情報取得 API - equipmentId: {}, 期間: {} から {}", equipmentId, startDate, endDate);
         try {
-            // TODO: 日付のバリデーション
+            // 日付のバリデーション
 
-            // TODO: equipmentRentalServiceで予約情報を取得する処理を実装
-            List<ReservationDTO> schedules = new ArrayList<>();
-
-            // 例として、サービスから取得したデータをDTOに変換する処理
-            schedules.add(
-                ReservationDTO.builder()
-                    .day(1)  // 月曜日
-                    .date("2024-05-05")
-                    .startTime("09:00")
-                    .endTime("17:00")
-                    .eventText("備品予約: " + equipmentId)
-                    .build()
-            );
+            // equipmentRentalServiceで予約情報を取得
+            List<ReservationDTO> schedules = equipmentRentalService.getReservations(
+                    Long.parseLong(equipmentId), startDate, endDate);
 
             return ResponseEntity.ok(schedules);
         } catch (Exception e) {
@@ -206,25 +196,15 @@ public class ReservationController {
 
         logger.info("設備予約情報取得 API - facilityId: {}, 期間: {} から {}", facilityId, startDate, endDate);
         try {
-            // TODO: 日付のバリデーション
+            // 日付のバリデーション
 
-            // TODO: equipmentRentalServiceで予約情報を取得する処理を実装
-            List<ReservationDTO> schedules = new ArrayList<>();
-
-            // 例として、サービスから取得したデータをDTOに変換する処理
-            schedules.add(
-                    ReservationDTO.builder()
-                            .day(1)  // 月曜日
-                            .date("2024-05-05")
-                            .startTime("09:00")
-                            .endTime("17:00")
-                            .eventText("設備予約: " + facilityId)
-                            .build()
-            );
+            // facilityRentalServiceで予約情報を取得
+            List<ReservationDTO> schedules = facilityRentalService.getReservations(
+                    Long.parseLong(facilityId), startDate, endDate);
 
             return ResponseEntity.ok(schedules);
         } catch (Exception e) {
-            logger.error("機器予約情報取得エラー", e);
+            logger.error("設備予約情報取得エラー", e);
             return ResponseEntity.badRequest().body(null);
         }
     }

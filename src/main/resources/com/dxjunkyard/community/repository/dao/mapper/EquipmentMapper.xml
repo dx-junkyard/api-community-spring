@@ -25,4 +25,30 @@
               ,#{comment}
               ,#{status})
     </insert>
+    
+    <!-- 設備IDと日付範囲に基づいて予約情報を取得するクエリ -->
+    <select id="findReservationsByEquipmentIdAndDateRange" resultType="com.dxjunkyard.community.domain.EquipmentRental">
+        SELECT 
+            reservation_id AS reservationId,
+            equipment_id AS equipmentId,
+            event_id AS eventId,
+            renter_id AS renterId,
+            equipment_n AS equipmentN,
+            start_date AS startDate,
+            end_date AS endDate,
+            usage_date AS usageDate,
+            comment,
+            status
+        FROM 
+            EquipmentReservations
+        WHERE 
+            equipment_id = #{equipmentId}
+            AND (
+                (start_date BETWEEN #{startDate} AND #{endDate})
+                OR (end_date BETWEEN #{startDate} AND #{endDate})
+                OR (start_date &lt;= #{startDate} AND end_date &gt;= #{endDate})
+            )
+        ORDER BY 
+            start_date ASC
+    </select>
 </mapper>
