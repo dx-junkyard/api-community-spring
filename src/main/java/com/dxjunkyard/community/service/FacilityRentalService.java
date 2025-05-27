@@ -1,8 +1,10 @@
 package com.dxjunkyard.community.service;
 
 import com.dxjunkyard.community.domain.FacilityRental;
+import com.dxjunkyard.community.domain.dto.ReservationDTO;
 import com.dxjunkyard.community.domain.request.FacilityReservationRequest;
 import com.dxjunkyard.community.repository.dao.mapper.FacilityMapper;
+import com.dxjunkyard.community.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,6 +80,40 @@ public class FacilityRentalService {
         } catch (Exception e) {
             logger.error("Facility reservation error: " + e.getMessage(), e);
             throw e; // 上位層でトランザクション処理するために例外を再スロー
+        }
+    }
+    
+    /**
+     * 指定された施設IDと日付範囲に基づいて予約情報を取得する
+     *
+     * @param facilityId 施設ID
+     * @param startDateStr 開始日（yyyy-MM-dd形式）
+     * @param endDateStr 終了日（yyyy-MM-dd形式）
+     * @return 予約情報DTOのリスト
+     */
+    public List<ReservationDTO> getReservations(Long facilityId, String startDateStr, String endDateStr) {
+        try {
+            LocalDateTime startDate = LocalDate.parse(startDateStr).atStartOfDay();
+            LocalDateTime endDate = LocalDate.parse(endDateStr).atTime(23, 59, 59);
+            
+            List<FacilityRental> rentals = facilityMapper.findReservationsByFacilityIdAndDateRange(facilityId, startDate, endDate);
+            
+            List<ReservationDTO> reservationDTOs = new ArrayList<>();
+            for (FacilityRental rental : rentals) {
+                ReservationDTO dto = ReservationDTO.builder()
+                    .day(DateTimeUtil.getDayOfWeek(rental.getStartDate()))
+                    .date(DateTimeUtil.formatDate(rental.getStartDate()))
+                    .startTime(DateTimeUtil.formatTime(rental.getStartDate()))
+                    .endTime(DateTimeUtil.formatTime(rental.getEndDate()))
+                    .eventText("設備予約: " + facilityId)
+                    .build();
+                reservationDTOs.add(dto);
+            }
+            
+            return reservationDTOs;
+        } catch (Exception e) {
+            logger.error("設備予約情報取得エラー", e);
+            throw e;
         }
     }
 }

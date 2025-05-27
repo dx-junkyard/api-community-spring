@@ -1,8 +1,10 @@
 package com.dxjunkyard.community.service;
 
 import com.dxjunkyard.community.domain.EquipmentRental;
+import com.dxjunkyard.community.domain.dto.ReservationDTO;
 import com.dxjunkyard.community.domain.request.EquipmentReservationRequest;
 import com.dxjunkyard.community.repository.dao.mapper.EquipmentMapper;
+import com.dxjunkyard.community.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +66,40 @@ public class EquipmentRentalService {
              */
         } catch (Exception e) {
             logger.info("error" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 指定された設備IDと日付範囲に基づいて予約情報を取得する
+     *
+     * @param equipmentId 設備ID
+     * @param startDateStr 開始日（yyyy-MM-dd形式）
+     * @param endDateStr 終了日（yyyy-MM-dd形式）
+     * @return 予約情報DTOのリスト
+     */
+    public List<ReservationDTO> getReservations(Long equipmentId, String startDateStr, String endDateStr) {
+        try {
+            LocalDateTime startDate = LocalDate.parse(startDateStr).atStartOfDay();
+            LocalDateTime endDate = LocalDate.parse(endDateStr).atTime(23, 59, 59);
+            
+            List<EquipmentRental> rentals = rentalMapper.findReservationsByEquipmentIdAndDateRange(equipmentId, startDate, endDate);
+            
+            List<ReservationDTO> reservationDTOs = new ArrayList<>();
+            for (EquipmentRental rental : rentals) {
+                ReservationDTO dto = ReservationDTO.builder()
+                    .day(DateTimeUtil.getDayOfWeek(rental.getStartDate()))
+                    .date(DateTimeUtil.formatDate(rental.getStartDate()))
+                    .startTime(DateTimeUtil.formatTime(rental.getStartDate()))
+                    .endTime(DateTimeUtil.formatTime(rental.getEndDate()))
+                    .eventText("備品予約: " + equipmentId)
+                    .build();
+                reservationDTOs.add(dto);
+            }
+            
+            return reservationDTOs;
+        } catch (Exception e) {
+            logger.error("備品予約情報取得エラー", e);
+            throw e;
         }
     }
 }
