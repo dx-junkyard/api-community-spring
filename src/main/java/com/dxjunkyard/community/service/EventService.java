@@ -42,6 +42,11 @@ public class EventService {
     public List<EventPage> searchEventByKeyword(String keyword) {
         logger.info("keyword search : event");
         try {
+            // キーワードが指定されていない場合は全件取得
+            if (keyword == null || keyword.isBlank()) {
+                return getEventList();
+            }
+
             // todo: keywordをサニタイズする
             // イベント名・概要・PR文をキーワードで検索する
             String decodedKeyword = URLDecoder.decode(keyword, StandardCharsets.UTF_8.name());
