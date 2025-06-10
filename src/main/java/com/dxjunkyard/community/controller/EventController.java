@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import com.dxjunkyard.community.service.*;
+import com.dxjunkyard.community.domain.PermissionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class EventController {
 
     @Autowired
     private EventService eventService;
+
+    @Autowired
+    private AccessControlService accessControlService;
 
     // イベントリストの表示
     @GetMapping("/eventlist")
@@ -97,7 +101,9 @@ public class EventController {
             if (myId == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authorization failed"));
             }
-            // todo : コミュニティに対するイベント作成権限の有無を確認
+            if (!accessControlService.hasPermission(myId, request.getCommunityId(), PermissionType.PLAN_EVENT)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("permission denied");
+            }
             // owner_idの指定がない場合は、操作中のユーザーをオーナーに指定する
             if (request.getOwnerId() == null) {
                 request.setOwnerId(myId);

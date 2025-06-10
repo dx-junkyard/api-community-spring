@@ -65,7 +65,7 @@ public class CommunityService {
             // 日付チェックも入れる
             if (invitation.getRemainingUses() >= 0) {
                 Long communityId = invitation.getCommunityId();
-                communityMemberMapper.addCommunityMember(communityId, myId, 100, 1, 1);
+                communityMemberMapper.addCommunityMember(communityId, myId, CommunityRole.PARTICIPANT, 1, 1);
                 return communityId;
             } else {
                 return null;
@@ -264,7 +264,7 @@ public class CommunityService {
                     .visibility(request.getVisibility())
                     .build();
             communityMapper.addCommunity(community);
-            communityMemberMapper.addCommunityMember(community.getId(),community.getOwnerId(),100,1,1);
+            communityMemberMapper.addCommunityMember(community.getId(),community.getOwnerId(),CommunityRole.ADMIN,1,1);
             return community;
         } catch (Exception e) {
             logger.info("addCommunity error");
@@ -319,7 +319,7 @@ public class CommunityService {
                     .build();
             communityMapper.addCommunity(community);
             // 作成した親コミュニティメンバーとしてコミュニティ作成者を追加する
-            communityMemberMapper.addCommunityMember(community.getId(),community.getOwnerId(),100,1,1);
+            communityMemberMapper.addCommunityMember(community.getId(),community.getOwnerId(),CommunityRole.ADMIN,1,1);
 
             // 親コミュニティIDを取得
             Long parentCommunityId =  community.getId();

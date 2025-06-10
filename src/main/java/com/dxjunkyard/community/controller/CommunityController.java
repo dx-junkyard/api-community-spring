@@ -4,6 +4,8 @@ import com.dxjunkyard.community.domain.Community;
 import com.dxjunkyard.community.domain.CommunityMemberList;
 import com.dxjunkyard.community.domain.CommunitySummary;
 import com.dxjunkyard.community.domain.request.AssignRoleRequest;
+import com.dxjunkyard.community.domain.CommunityRole;
+import com.dxjunkyard.community.domain.PermissionType;
 import com.dxjunkyard.community.domain.request.CommunityNetworking;
 import com.dxjunkyard.community.domain.request.EditCommunityRequest;
 import com.dxjunkyard.community.domain.request.FavoriteRequest;
@@ -50,6 +52,9 @@ public class CommunityController {
 
     @Autowired
     private CommunityMemberService communityMemberService;
+
+    @Autowired
+    private AccessControlService accessControlService;
 
 
     // コミュニティリストの表示
@@ -224,7 +229,7 @@ public class CommunityController {
         if (myId == null) {
             return ResponseEntity.ok(0);
         }
-        Integer updateSuccess = communityMemberService.updateFavoriteStatus(myId, 0, favoriteRequest);
+        Integer updateSuccess = communityMemberService.updateFavoriteStatus(myId, CommunityRole.PARTICIPANT, favoriteRequest);
         return ResponseEntity.ok(updateSuccess);
     }
 
@@ -340,11 +345,14 @@ public class CommunityController {
         logger.info("role assign API");
         try {
             logger.info("community_id: " + communityId.toString());
-            // todo: roleチェック（myIdにcommunity_idにおける権限付与の権限があるか？）
             String myId = authService.checkAuthHeader(authHeader);
             if (myId == null) {
                 return ResponseEntity.badRequest().body("auth failed.");
             }
+            if (!accessControlService.hasPermission(myId, communityId, PermissionType.MANAGE_COMMUNITY)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("permission denied");
+            }
+            communityMemberService.assignRole(communityId, request.getUserId(), request.getRole());
             return ResponseEntity.ok("Role " + request.getRole() + " has been successfully assigned.");
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
@@ -360,14 +368,17 @@ public class CommunityController {
             @PathVariable("user_id") Long userId) {
         // 権限の確認ロジック
         try {
-            String role = "Member"; // ここでDBからuserIdに対応するroleを取得する
             logger.info("community_id: " + communityId.toString());
-            // todo: roleチェック（myIdにuser_idの権限表示の権限があるか？）
             String myId = authService.checkAuthHeader(authHeader);
             if (myId == null) {
                 return ResponseEntity.badRequest().body("auth failed.");
             }
-            return ResponseEntity.ok(role);
+            if (!myId.equals(String.valueOf(userId)) &&
+                    !accessControlService.hasPermission(myId, communityId, PermissionType.MANAGE_COMMUNITY)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("permission denied");
+            }
+            CommunityRole role = communityMemberService.getRole(communityId, String.valueOf(userId));
+            return ResponseEntity.ok(role.name());
         } catch (Exception e) {
             logger.debug("community" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");
@@ -380,17 +391,17 @@ public class CommunityController {
             @RequestHeader("Authorization") String authHeader,
             @PathVariable("community_id") Long communityId,
             @PathVariable("user_id") Long userId) {
-        // 権限の削除ロジック
-        // todo: roleチェック（myIdにuser_idの権限削除の権限があるか？）
-        // userIdのロールを削除する処理
         try {
-            String role = "Member"; // ここでDBからuserIdに対応するroleを取得する
             logger.info("community_id: " + communityId.toString());
             String myId = authService.checkAuthHeader(authHeader);
             if (myId == null) {
                 return ResponseEntity.badRequest().body("auth failed.");
             }
-            return ResponseEntity.ok(role);
+            if (!accessControlService.hasPermission(myId, communityId, PermissionType.MANAGE_COMMUNITY)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("permission denied");
+            }
+            communityMemberService.removeMember(communityId, String.valueOf(userId));
+            return ResponseEntity.ok("removed");
         } catch (Exception e) {
             logger.debug("error : delete role" + e.getMessage());
             return ResponseEntity.badRequest().body("Invalid fields: userId is missing or invalid, role is missing or invalid");

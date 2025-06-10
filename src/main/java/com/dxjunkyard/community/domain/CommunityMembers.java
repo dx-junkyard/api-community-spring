@@ -8,6 +8,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Represents a member of a community. The {@link CommunityRole} enum is used
+ * instead of raw integers for the role field.
+ */
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -15,7 +20,7 @@ import java.util.List;
 public class CommunityMembers {
     private Long communityId;
     private String userId;
-    private Integer role;
+    private CommunityRole role;
     private Integer status;
     private Integer fav;
 }

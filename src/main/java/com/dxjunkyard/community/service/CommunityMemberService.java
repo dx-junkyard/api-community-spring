@@ -1,6 +1,7 @@
 package com.dxjunkyard.community.service;
 
 import com.dxjunkyard.community.domain.CommunityMembers;
+import com.dxjunkyard.community.domain.CommunityRole;
 import com.dxjunkyard.community.domain.Invitations;
 import com.dxjunkyard.community.domain.request.FavoriteRequest;
 import com.dxjunkyard.community.repository.dao.mapper.CommunityMemberMapper;
@@ -19,7 +20,7 @@ public class CommunityMemberService {
     @Autowired
     private InvitationMapper invitationMapper;
 
-    public Integer  updateFavoriteStatus(String userId, Integer roleId, FavoriteRequest request) {
+    public Integer  updateFavoriteStatus(String userId, CommunityRole roleId, FavoriteRequest request) {
         try {
             CommunityMembers member = CommunityMembers.builder()
                     .userId(userId)
@@ -34,6 +35,29 @@ public class CommunityMemberService {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    public CommunityRole getRole(Long communityId, String userId) {
+        List<CommunityMembers> members = communityMemberMapper.selectCommunityMember(communityId, userId);
+        if (members.isEmpty()) {
+            return CommunityRole.VIEWER;
+        }
+        return members.get(0).getRole();
+    }
+
+    public void assignRole(Long communityId, String targetUser, CommunityRole role) {
+        CommunityMembers member = CommunityMembers.builder()
+                .communityId(communityId)
+                .userId(targetUser)
+                .role(role)
+                .status(1)
+                .fav(1)
+                .build();
+        communityMemberMapper.insertOrUpdateCommunityMember(member);
+    }
+
+    public void removeMember(Long communityId, String targetUser) {
+        communityMemberMapper.deleteCommunityMember(communityId, targetUser);
     }
 
     public List<String> getMemberNameList(Long communityId) {
