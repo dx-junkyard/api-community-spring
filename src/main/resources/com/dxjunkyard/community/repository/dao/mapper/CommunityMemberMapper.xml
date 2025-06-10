@@ -15,23 +15,31 @@
         VALUES (
                    #{communityId},
                    #{userId},
-                   #{role},
+                   #{role, typeHandler=com.dxjunkyard.community.config.mybatis.CommunityRoleTypeHandler},
                    #{status},
                    #{fav}
                )
             ON DUPLICATE KEY UPDATE
-                                 role_id = #{role},
-                                 status = #{status},
-                                 fav_flg = #{fav};
+                                role_id = #{role, typeHandler=com.dxjunkyard.community.config.mybatis.CommunityRoleTypeHandler},
+                                status = #{status},
+                                fav_flg = #{fav};
     </insert>
     <!-- Select CommunityMember by communityId and userId -->
-    <select id="selectCommunityMember" resultType="com.dxjunkyard.community.domain.CommunityMembers">
+    <resultMap id="CommunityMemberResult" type="com.dxjunkyard.community.domain.CommunityMembers">
+        <result column="community_id" property="communityId"/>
+        <result column="user_id" property="userId"/>
+        <result column="role_id" property="role" javaType="com.dxjunkyard.community.domain.CommunityRole"
+                typeHandler="com.dxjunkyard.community.config.mybatis.CommunityRoleTypeHandler"/>
+        <result column="status" property="status"/>
+        <result column="fav_flg" property="fav"/>
+    </resultMap>
+    <select id="selectCommunityMember" resultMap="CommunityMemberResult">
         SELECT
-            community_id as communityId
-            ,user_id as userId
-            ,role_id as role
-            ,status as status
-            ,fav_flg as fav
+            community_id,
+            user_id,
+            role_id,
+            status,
+            fav_flg
         FROM CommunityMembers
         WHERE community_id = #{communityId}
           AND user_id = #{userId}
@@ -46,9 +54,22 @@
         values (
                    #{community_id},
                    #{user_id},
-                   #{role_id},
+                   #{role_id, typeHandler=com.dxjunkyard.community.config.mybatis.CommunityRoleTypeHandler},
                    #{status},
                    #{fav}
                )
     </insert>
+
+    <update id="updateRole">
+        UPDATE CommunityMembers
+        SET role_id = #{role_id, typeHandler=com.dxjunkyard.community.config.mybatis.CommunityRoleTypeHandler}
+        WHERE community_id = #{community_id}
+          AND user_id = #{user_id}
+    </update>
+
+    <delete id="deleteCommunityMember">
+        DELETE FROM CommunityMembers
+        WHERE community_id = #{community_id}
+          AND user_id = #{user_id}
+    </delete>
 </mapper>
