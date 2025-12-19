@@ -20,7 +20,7 @@ public class ReservationConverter {
 
     public static FacilityReservationRequest toFacilityRequest(CombinedReservationRequest request, String userId) {
         return FacilityReservationRequest.builder()
-                .facilityId(request.getFacilityId().intValue())
+                .facilityId(request.getFacilityId())
                 .eventId(request.getCommunityId().intValue())
                 .renterId(userId)
                 .startDate(request.getDate() + " " + request.getStartTime())

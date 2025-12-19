@@ -1,6 +1,7 @@
 package com.dxjunkyard.community.service;
 
 import com.dxjunkyard.community.domain.EquipmentRental;
+import com.dxjunkyard.community.domain.dto.ClosureScheduleDTO;
 import com.dxjunkyard.community.domain.dto.ReservationDTO;
 import com.dxjunkyard.community.domain.request.EquipmentReservationRequest;
 import com.dxjunkyard.community.repository.dao.mapper.EquipmentMapper;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -68,6 +70,25 @@ public class EquipmentRentalService {
             logger.info("error" + e.getMessage());
         }
     }
+
+    public int checkIn(Long equipmentId, String userId) {
+        try {
+            return rentalMapper.updateStatusByEquipmentAndRenter(equipmentId, userId, 0, 1);
+        } catch (Exception e) {
+            logger.info("error" + e.getMessage());
+            throw e;
+        }
+    }
+
+    @Transactional
+    public int checkOut(String userId) {
+        try {
+            return rentalMapper.updateStatusByRenter(userId, 1, 2);
+        } catch (Exception e) {
+            logger.info("error" + e.getMessage());
+            throw e;
+        }
+    }
     
     /**
      * 指定された設備IDと日付範囲に基づいて予約情報を取得する
@@ -97,6 +118,32 @@ public class EquipmentRentalService {
             }
             
             return reservationDTOs;
+        } catch (Exception e) {
+            logger.error("備品予約情報取得エラー", e);
+            throw e;
+        }
+    }
+
+    public List<ClosureScheduleDTO> getClosures(Long equipmentId, String startDateStr, String endDateStr) {
+        try {
+            LocalDateTime startDate = LocalDate.parse(startDateStr).atStartOfDay();
+            LocalDateTime endDate = LocalDate.parse(endDateStr).atTime(23, 59, 59);
+
+            List<EquipmentRental> rentals = rentalMapper.findReservationsByEquipmentIdAndDateRange(equipmentId, startDate, endDate);
+
+            List<ClosureScheduleDTO> closureScheduleDTOs = new ArrayList<>();
+            for (EquipmentRental rental : rentals) {
+                ClosureScheduleDTO dto = ClosureScheduleDTO.builder()
+                        .day(DateTimeUtil.getDayOfWeek(rental.getStartDate()))
+                        .date(DateTimeUtil.formatDate(rental.getStartDate()))
+                        .startTime(DateTimeUtil.formatTime(rental.getStartDate()))
+                        .endTime(DateTimeUtil.formatTime(rental.getEndDate()))
+                        .eventText("予約不可: " + equipmentId)
+                        .build();
+                closureScheduleDTOs.add(dto);
+            }
+
+            return closureScheduleDTOs;
         } catch (Exception e) {
             logger.error("備品予約情報取得エラー", e);
             throw e;

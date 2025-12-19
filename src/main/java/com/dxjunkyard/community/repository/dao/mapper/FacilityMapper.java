@@ -18,4 +18,8 @@ public interface FacilityMapper {
      * @return 予約情報のリスト
      */
     List<FacilityRental> findReservationsByFacilityIdAndDateRange(Long facilityId, LocalDateTime startDate, LocalDateTime endDate);
+
+    int updateStatusByFacilityAndRenter(Long facilityId, String renterId, Integer fromStatus, Integer toStatus);
+
+    int updateStatusByRenter(String renterId, Integer fromStatus, Integer toStatus);
 }

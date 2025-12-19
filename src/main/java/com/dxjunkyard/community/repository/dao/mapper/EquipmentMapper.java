@@ -18,4 +18,8 @@ public interface EquipmentMapper {
      * @return 予約情報のリスト
      */
     List<EquipmentRental> findReservationsByEquipmentIdAndDateRange(Long equipmentId, LocalDateTime startDate, LocalDateTime endDate);
+
+    int updateStatusByEquipmentAndRenter(Long equipmentId, String renterId, Integer fromStatus, Integer toStatus);
+
+    int updateStatusByRenter(String renterId, Integer fromStatus, Integer toStatus);
 }

@@ -1,6 +1,7 @@
 package com.dxjunkyard.community.service;
 
 import com.dxjunkyard.community.domain.FacilityRental;
+import com.dxjunkyard.community.domain.dto.ClosureScheduleDTO;
 import com.dxjunkyard.community.domain.dto.ReservationDTO;
 import com.dxjunkyard.community.domain.request.FacilityReservationRequest;
 import com.dxjunkyard.community.repository.dao.mapper.FacilityMapper;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,29 +25,22 @@ public class FacilityRentalService {
     @Autowired
     FacilityMapper facilityMapper;
 
-    public List<FacilityRental> checkin(String counterId, String userId) {
-        List<FacilityRental> rentalList = new ArrayList<>();
+    public int checkIn(Long facilityId, String userId) {
         try {
-            LocalDate today = LocalDate.now();
-            LocalDateTime midnight = today.atStartOfDay();
-            // カウンターID, 借り主のuserid, 貸出日付でレンタルする備品リストを取得
-            /*
-            List<Integer> reservationIdList = rentalMapper.getReservationIdList(
-                    counterId
-                    , userId
-                    , midnight);
-
-            for (Integer reservationId : reservationIdList) {
-                List<RentalFlatten> flattenList = rentalMapper.getRental(reservationId);
-                Rental rental = RentalDto.rental(flattenList);
-                rentalList.add(rental);
-            }
-
-             */
-            return rentalList;
+            return facilityMapper.updateStatusByFacilityAndRenter(facilityId, userId, 0, 1);
         } catch (Exception e) {
             logger.info("error" + e.getMessage());
-            return rentalList;
+            throw e;
+        }
+    }
+
+    @Transactional
+    public int checkOut(String userId) {
+        try {
+            return facilityMapper.updateStatusByRenter(userId, 1, 2);
+        } catch (Exception e) {
+            logger.info("error" + e.getMessage());
+            throw e;
         }
     }
 
@@ -111,6 +106,32 @@ public class FacilityRentalService {
             }
             
             return reservationDTOs;
+        } catch (Exception e) {
+            logger.error("設備予約情報取得エラー", e);
+            throw e;
+        }
+    }
+
+    public List<ClosureScheduleDTO> getClosures(Long facilityId, String startDateStr, String endDateStr) {
+        try {
+            LocalDateTime startDate = LocalDate.parse(startDateStr).atStartOfDay();
+            LocalDateTime endDate = LocalDate.parse(endDateStr).atTime(23, 59, 59);
+
+            List<FacilityRental> rentals = facilityMapper.findReservationsByFacilityIdAndDateRange(facilityId, startDate, endDate);
+
+            List<ClosureScheduleDTO> closureScheduleDTOs = new ArrayList<>();
+            for (FacilityRental rental : rentals) {
+                ClosureScheduleDTO dto = ClosureScheduleDTO.builder()
+                        .day(DateTimeUtil.getDayOfWeek(rental.getStartDate()))
+                        .date(DateTimeUtil.formatDate(rental.getStartDate()))
+                        .startTime(DateTimeUtil.formatTime(rental.getStartDate()))
+                        .endTime(DateTimeUtil.formatTime(rental.getEndDate()))
+                        .eventText("予約不可: " + facilityId)
+                        .build();
+                closureScheduleDTOs.add(dto);
+            }
+
+            return closureScheduleDTOs;
         } catch (Exception e) {
             logger.error("設備予約情報取得エラー", e);
             throw e;
