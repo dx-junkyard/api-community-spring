@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FacilityReservationRequest {
-    private Integer facilityId;  // 借りる設備id
+    private Long facilityId;  // 借りる設備id
     private Integer eventId;  // 利用目的のイベントid
     private String renterId; // 借り主の user id
     private String startDate; // 貸出開始

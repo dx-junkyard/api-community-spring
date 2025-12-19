@@ -40,7 +40,7 @@
     
     <!-- 施設IDと日付範囲に基づいて予約情報を取得するクエリ -->
     <select id="findReservationsByFacilityIdAndDateRange" resultType="com.dxjunkyard.community.domain.FacilityRental">
-        SELECT 
+        SELECT
             reservation_id AS reservationId,
             facility_id AS facilityId,
             event_id AS eventId,
@@ -58,7 +58,22 @@
                 OR (end_date BETWEEN #{startDate} AND #{endDate})
                 OR (start_date &lt;= #{startDate} AND end_date &gt;= #{endDate})
             )
-        ORDER BY 
+        ORDER BY
             start_date ASC
     </select>
+
+    <update id="updateStatusByFacilityAndRenter">
+        UPDATE FacilityReservations
+        SET status = #{toStatus}
+        WHERE facility_id = #{facilityId}
+          AND renter_id = #{renterId}
+          AND status = #{fromStatus}
+    </update>
+
+    <update id="updateStatusByRenter">
+        UPDATE FacilityReservations
+        SET status = #{toStatus}
+        WHERE renter_id = #{renterId}
+          AND status = #{fromStatus}
+    </update>
 </mapper>

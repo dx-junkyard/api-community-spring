@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -92,20 +91,8 @@ public class ReservationController {
         logger.info("備品予約窓口情報取得 API - equipmentId: {}, 期間: {} から {}", equipmentId, startDate, endDate);
         try {
             // TODO: 日付のバリデーション
-
-            // TODO: equipmentRentalServiceで予約情報を取得する処理を実装
-            List<ClosureScheduleDTO> schedules = new ArrayList<>();
-
-            // 例として、サービスから取得したデータをDTOに変換する処理
-            schedules.add(
-                ClosureScheduleDTO.builder()
-                    .day(1)  // 月曜日
-                    .date("2024-05-05")
-                    .startTime("00:00")
-                    .endTime("08:00")
-                    .eventText("予約不可: " + equipmentId)
-                    .build()
-            );
+            List<ClosureScheduleDTO> schedules = equipmentRentalService.getClosures(
+                    Long.parseLong(equipmentId), startDate, endDate);
 
             return ResponseEntity.ok(schedules);
         } catch (Exception e) {
@@ -159,20 +146,8 @@ public class ReservationController {
         logger.info("設備予約窓口情報取得 API - facilityId: {}, 期間: {} から {}", facilityId, startDate, endDate);
         try {
             // TODO: 日付のバリデーション
-
-            // TODO: equipmentRentalServiceで予約情報を取得する処理を実装
-            List<ClosureScheduleDTO> schedules = new ArrayList<>();
-
-            // 例として、サービスから取得したデータをDTOに変換する処理
-            schedules.add(
-                    ClosureScheduleDTO.builder()
-                            .day(1)  // 月曜日
-                            .date("2024-05-05")
-                            .startTime("00:00")
-                            .endTime("08:00")
-                            .eventText("予約不可: " + facilityId)
-                            .build()
-            );
+            List<ClosureScheduleDTO> schedules = facilityRentalService.getClosures(
+                    Long.parseLong(facilityId), startDate, endDate);
 
             return ResponseEntity.ok(schedules);
         } catch (Exception e) {
@@ -220,12 +195,9 @@ public class ReservationController {
         logger.info("rental API");
         try {
             // todo : parameter validation
-            /*
-            return CheckInResponse.builder()
-                    .rentalList(facilityRentalService.checkin(counterId,userId))
-                    .status("OK")
-                    .build();
-             */
+            Long facilityId = Long.parseLong(counterId);
+            facilityRentalService.checkIn(facilityId, userId);
+            equipmentRentalService.checkIn(facilityId, userId);
             return ResponseEntity.ok("ok");
         } catch (Exception e) {
             logger.debug("rental" + e.getMessage());
@@ -245,12 +217,8 @@ public class ReservationController {
         logger.info("rental API");
         try {
             // todo : parameter validation
-            /*
-            return CheckInResponse.builder()
-                    .rentalList(facilityRentalService.checkin(counterId,userId))
-                    .status("OK")
-                    .build();
-             */
+            facilityRentalService.checkOut(userId);
+            equipmentRentalService.checkOut(userId);
             return ResponseEntity.ok("ok");
         } catch (Exception e) {
             logger.debug("rental" + e.getMessage());

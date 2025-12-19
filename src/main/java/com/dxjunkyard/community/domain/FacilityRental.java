@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class FacilityRental {
     private Integer reservationId; // 予約id
-    private Integer facilityId; // 備品id
+    private Long facilityId; // 備品id
     private Integer eventId;  // 利用目的のイベントid
     private String renterId; // 借り主の user id
     private LocalDateTime startDate; // 貸出開始
